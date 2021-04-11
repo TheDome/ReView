@@ -4,6 +4,7 @@
 name = "ReView"
 version = "0.1.0"
 dependencies = [
+ "byteorder",
  "cairo-rs",
  "env_logger",
  "gdk",
