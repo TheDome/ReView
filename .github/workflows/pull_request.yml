@@ -1,9 +1,15 @@
 on:
   - pull_request
 
+name: Clippy check
+
 jobs:
   clippy:
     runs-on: ubuntu-20.04
     steps:
-      - name: Clippy
-        run: cargo clippy
+      - uses: actions/checkout@v1
+      - run: rustup component add clippy
+      - uses: actions-rs/clippy-check@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          args: --all-features
