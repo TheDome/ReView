@@ -85,8 +85,17 @@ pub fn parse_binary_live_lines(file: &mut dyn io::Read) {
         reader.read(&mut [0; 10]); // Discard "direction" string + 1b
 
         let direction = reader.read_f64::<LittleEndian>().unwrap();
-        reader.read(&mut [0; 20]); // Discard more
         trace!("Direction is: {:?}", direction);
+
+        reader.read_u32::<LittleEndian>();
+
+        reader.read(&mut [0; 4]);
+
+        let pressure = reader.read_f64::<LittleEndian>().unwrap();
+
+        trace!("Pressure is: {}", pressure);
+
+        reader.read_u32::<LittleEndian>();
 
         read_len(5, reader);
 
@@ -125,7 +134,10 @@ pub fn parse_binary_live_lines(file: &mut dyn io::Read) {
 
         reader.read(&mut [0; 36]);
 
-        debug!("Gathered line: ({},{}) in direction: {} with speed: {}", x, y, direction, speed);
+        debug!(
+            "Gathered line: ({},{}) in direction: {} with speed: {} and pressure: {}",
+            x, y, direction, speed, pressure
+        );
     }
 
     debug!("Lines are finished. Footer incoming");
