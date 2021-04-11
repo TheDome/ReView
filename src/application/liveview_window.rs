@@ -7,8 +7,8 @@ use gdk;
 use gdk::WindowAttr;
 use gio::dbus_address_escape_value;
 use glib::{Continue, MainContext};
-use gtk::{Inhibit, WidgetExt, Window};
 use gtk::prelude::*;
+use gtk::{Inhibit, WidgetExt, Window};
 use log::{debug, info, trace, warn};
 
 use crate::application::application::WINDOWS_STRING;
@@ -57,13 +57,13 @@ impl LiveViewWindow {
 
         let receiver = self.receiver;
 
-        receiver.attach(None, | ctx| {
+        receiver.attach(None, |ctx| {
             debug!("Received data");
 
             let mut file = std::fs::File::create("foo.bin").unwrap();
 
             #[cfg(debug_assertions)]
-                file.write(ctx.as_slice());
+            file.write(ctx.as_slice());
 
             let mut cursor = std::io::Cursor::new(ctx);
 
@@ -78,7 +78,7 @@ impl LiveViewWindow {
             50,
             50,
         )
-            .unwrap();
+        .unwrap();
 
         draw.connect_configure_event(|dr, ev| true);
 
