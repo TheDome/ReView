@@ -1,4 +1,5 @@
 use std::fs::read_to_string;
+use std::io::Write;
 use std::sync::mpsc::channel;
 
 use cairo::{Context, Surface, SurfaceType};
@@ -12,7 +13,6 @@ use log::{debug, info, trace, warn};
 
 use crate::application::application::WINDOWS_STRING;
 use crate::application::remarkable::web_socket::data_socket;
-use std::io::Write;
 
 pub struct LiveViewWindow {
     receiver: glib::Receiver<Vec<u8>>,
@@ -61,9 +61,12 @@ impl LiveViewWindow {
 
             let mut file = std::fs::File::create("foo.bin").unwrap();
 
+            #[cfg(debug_assertions)]
             file.write(ctx.as_slice());
 
-            Continue(false)
+            debug!("Writing {} data", ctx.len());
+
+            Continue(true)
         });
 
         let surface = gdk::Window::create_similar_surface(

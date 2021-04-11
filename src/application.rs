@@ -17,11 +17,10 @@ pub mod application {
     use glib;
     use glib::Continue;
     use glib::Receiver;
-    use gtk::{
-        ApplicationWindow, Builder, ButtonsType,
-        DialogFlags, MessageDialog, MessageType, Window,
-    };
     use gtk::prelude::*;
+    use gtk::{
+        ApplicationWindow, Builder, ButtonsType, DialogFlags, MessageDialog, MessageType, Window,
+    };
     use log::{debug, error, info, trace, warn};
 
     use crate::application::application_config::{APPLICATION_IDENTIFIER, APPLICATION_VERSION};
@@ -103,7 +102,6 @@ pub mod application {
             tokio::spawn(async move {
                 let not = String::from(nofifc_url);
                 let live = String::from(livesync_host);
-
 
                 match rx.recv() {
                     Ok((device_token, session_token)) => {
@@ -309,7 +307,6 @@ pub mod application {
 
             let data = rx.recv().unwrap();
 
-
             match data {
                 Ok(token) => {
                     debug!("Token found!");
@@ -368,8 +365,9 @@ pub mod application {
 
         debug!("Listening for events..");
 
-        std::thread::Builder::new().name("event_listener".into()).spawn(move || {
-            loop {
+        std::thread::Builder::new()
+            .name("event_listener".into())
+            .spawn(move || loop {
                 match rx.recv() {
                     Ok(ev) => {
                         debug!("{:?}", host);
@@ -394,8 +392,7 @@ pub mod application {
                     }
                     Err(_) => {}
                 };
-            }
-        });
+            });
     }
 
     pub fn show_error(description: String) {

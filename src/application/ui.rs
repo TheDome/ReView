@@ -3,7 +3,7 @@ use gio::{Menu, MenuItem};
 use gtk::prelude::*;
 use gtk::AboutDialogExt;
 
-use log::{ trace};
+use log::trace;
 
 use crate::application::application_config::APPLICATION_VERSION;
 

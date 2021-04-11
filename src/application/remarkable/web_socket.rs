@@ -37,7 +37,6 @@ pub async fn start_socket(base_url: &str, session_token: &str) -> Receiver<Socke
     trace!("Using base: {}", base_url);
     trace!("Token: {}", session_token);
 
-
     let (tx, rx) = mpsc::channel::<SocketEvent>();
 
     let mut url = PROTOCOL.to_string();
@@ -170,7 +169,7 @@ pub fn data_socket(
             let mut headers = Headers::new();
             headers.set(Authorization(Bearer { token }));
 
-            let  client = ClientBuilder::new(&path)
+            let client = ClientBuilder::new(&path)
                 .unwrap()
                 .custom_headers(&headers)
                 .connect(None);

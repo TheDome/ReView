@@ -17,6 +17,6 @@ pub enum PenType {
 
 pub fn get_pen(identifier: String) -> PenType {
     match identifier {
-        _ => PenType::UNKNWON
+        _ => PenType::UNKNWON,
     }
 }

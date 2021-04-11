@@ -4,8 +4,8 @@ use std::env::join_paths;
 use std::error::Error;
 
 use log::{debug, info, trace, warn};
-use reqwest::{Client, Response, StatusCode};
 use reqwest::header::AUTHORIZATION;
+use reqwest::{Client, Response, StatusCode};
 use uuid::Uuid;
 
 use crate::application::remarkable::config::{

@@ -42,7 +42,6 @@ pub async fn info_for_item(
         Ok(d) => {
             let json = json::parse(d.text().await.unwrap().as_str()).expect("");
 
-
             let item = json.borrow()[0].borrow();
 
             let success = item["Success"].as_bool();
@@ -106,8 +105,6 @@ pub async fn download_blob(connection: APIConnection<'_>, file_id: &str) -> Resu
         Ok(d) => {
             let json = json::parse(d.text().await.unwrap().as_str()).expect("");
 
-
-
             let item = json.borrow()[0].borrow();
 
             let success = item["Success"].as_bool();
@@ -141,7 +138,6 @@ pub async fn download_blob(connection: APIConnection<'_>, file_id: &str) -> Resu
 
     match client.send().await {
         Ok(res) => {
-
             trace!("Got body: {:?}", res.bytes().await);
 
             Ok("TEST".to_string())
