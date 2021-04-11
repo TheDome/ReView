@@ -7,6 +7,8 @@ use cairo::debug_reset_static_data;
 use gdk::keys::constants::v;
 use log::{debug, trace};
 
+use crate::application::remarkable::format::data::{Line, PenColor, Point};
+
 fn read_len(expected: u16, reader: &mut dyn io::Read) {
     let mut len = [0; 2];
     reader.read(&mut len);
@@ -15,7 +17,9 @@ fn read_len(expected: u16, reader: &mut dyn io::Read) {
     assert_eq!(len, expected, "Length of string not found. Aborting");
 }
 
-pub fn parse_binary_live_lines(file: &mut dyn io::Read) {
+pub fn parse_binary_live_lines(file: &mut dyn io::Read) -> Line {
+    let mut points = vec![];
+
     debug!("Parsing data");
     let reader = file;
 
@@ -50,8 +54,9 @@ pub fn parse_binary_live_lines(file: &mut dyn io::Read) {
     let len = reader.read_u16::<LittleEndian>().unwrap();
     let mut brush = vec![0; len as usize];
     reader.read(&mut brush);
+    let brush = String::from_utf8(brush).unwrap();
 
-    trace!("Using brush: {:?}", String::from_utf8(brush));
+    trace!("Using brush: {:?}", brush);
 
     reader.read_u8();
     reader.read_u32::<LittleEndian>();
@@ -62,24 +67,23 @@ pub fn parse_binary_live_lines(file: &mut dyn io::Read) {
     let mut color = vec![0; color_len as usize];
     reader.read(&mut color);
     reader.read_u8();
+    let color = String::from_utf8(color).unwrap();
 
-    trace!("Color: {:?}", String::from_utf8(color));
+    trace!("Color: {:?}", color);
 
     reader.read_u32::<LittleEndian>();
 
     reader.read(&mut [0; 9]);
 
-    let points = reader.read_u16::<LittleEndian>().unwrap();
-    trace!("Points: {}", points);
+    let no_points = reader.read_u16::<LittleEndian>().unwrap();
+    trace!("Points: {}", no_points);
 
     reader.read(&mut [0; 25]);
 
     let mut counter = 0;
 
     debug!("Entering loop");
-    loop {
-        counter += 1;
-
+    while counter < no_points {
         read_len(9, reader);
 
         reader.read(&mut [0; 10]); // Discard "direction" string + 1b
@@ -134,12 +138,34 @@ pub fn parse_binary_live_lines(file: &mut dyn io::Read) {
 
         reader.read(&mut [0; 36]);
 
+        points.push(Point {
+            y,
+            x,
+            pressure,
+            speed,
+            width,
+        });
+
         debug!(
             "Gathered line: ({},{}) in direction: {} with speed: {} and pressure: {}",
             x, y, direction, speed, pressure
         );
+
+        counter += 1;
     }
 
     debug!("Lines are finished. Footer incoming");
     trace!("Read {} points", counter);
+
+    let color = match color.as_str() {
+        "Black" => PenColor::BLACK,
+        "White" => PenColor::WHITE,
+        _ => PenColor::GRAY,
+    };
+
+    Line {
+        points,
+        brush: brush.into(),
+        color: color.into(),
+    }
 }
