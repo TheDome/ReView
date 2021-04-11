@@ -1,0 +1,9 @@
+on:
+  - pull_request
+
+jobs:
+  clippy:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Clippy
+        run: cargo clippy
