@@ -13,7 +13,7 @@ session_from_config = []
 
 [dependencies]
 reqwest = { version = "0.11.2", features = ["default-tls", "json"] }
-env_logger = "0.8.2"
+env_logger = "0.8.3"
 websocket = "0.26.2"
 json = "0.12.4"
 uuid = { version = "0.8.2", features = ["serde", "v4", ] }
@@ -23,7 +23,7 @@ gdk = "0.13.2"
 byteorder = "1.3.4"
 
 [dependencies.tokio]
-version = "1.0.2"
+version = "1.4.0"
 features = ["macros", "rt-multi-thread"]
 
 [dependencies.gtk]
@@ -35,6 +35,6 @@ version = "0.9.1"
 features = ["v2_44"]
 
 [dependencies.log]
-version = "0.4.13"
+version = "0.4.14"
 features = ["max_level_trace", "release_max_level_warn"]
 
