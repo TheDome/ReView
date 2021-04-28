@@ -1,7 +1,7 @@
 [package]
 name = "ReView"
 version = "0.1.0"
-authors = ["TheDome"]
+authors = ["Dominic Heun <dominic.heun@gmx.net>"]
 edition = "2018"
 build = "build.rs"
 repository = "https://github.com/thedome/review"
@@ -10,6 +10,7 @@ readme = "README.md"
 
 [features]
 session_from_config = []
+QJsonBigEndian = []
 
 [dependencies]
 reqwest = { version = "0.11.0", features = ["default-tls", "json"] }
@@ -20,7 +21,11 @@ uuid = { version = "0.8.2", features = ["serde", "v4", ] }
 glib = "0.10.3"
 cairo-rs = { version = "^0", features = ["v1_16"] }
 gdk = "0.13.2"
-byteorder = "1.3.4"
+pdf-canvas = "*"
+byteorder = "1.4.3"
+num = "0.4"
+num-traits = "0.2"
+num-derive = "0.3"
 
 [dependencies.tokio]
 version = "1.0.2"
