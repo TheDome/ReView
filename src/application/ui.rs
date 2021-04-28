@@ -1,5 +1,5 @@
 use gio::prelude::*;
-use gio::{Menu, MenuItem};
+use gio::{Menu, MenuItem, MenuModel};
 use gtk::prelude::*;
 use gtk::AboutDialogExt;
 
@@ -8,9 +8,12 @@ use log::trace;
 use crate::application::application_config::APPLICATION_VERSION;
 
 pub fn build_menu_bar(builder: &gtk::Builder) -> Menu {
-    let menu_bar = gio::Menu::new();
+    let menu_bar = Menu::new();
 
     let app_emenu = MenuItem::new(Some("File"), None);
+    let file_menu = Menu::new();
+
+    app_emenu.set_submenu(Some(&file_menu));
 
     let about_button = MenuItem::new(Some("About"), Some("_about"));
 
@@ -29,12 +32,20 @@ fn add_actions(builder: &gtk::Builder) {
         .get_object("mainAboutDialog")
         .expect("Could not find about dialog");
     about_dialog.set_version(Some(APPLICATION_VERSION));
+    about_dialog.set_authors(
+        env!("CARGO_PKG_AUTHORS")
+            .split(";")
+            .collect::<Vec<&str>>()
+            .as_slice(),
+    );
     about_dialog.set_logo(None);
 
     let about_action = gio::SimpleAction::new("_about", None);
 
-    about_action.connect_activate(move |_, _| {
+    about_action.connect_change_state(move |_, _| {
         about_dialog.run();
         about_dialog.hide();
     });
+
+    about_action.set_enabled(true);
 }
