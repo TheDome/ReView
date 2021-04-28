@@ -1,4 +1,4 @@
-use std::fs::read_to_string;
+use std::fs::{read_to_string, File};
 use std::io::Write;
 use std::sync::mpsc::channel;
 
@@ -60,14 +60,22 @@ impl LiveViewWindow {
         receiver.attach(None, |ctx| {
             debug!("Received data");
 
-            let mut file = std::fs::File::create("foo.bin").unwrap();
+            let mut file = std::fs::File::create("foo.pdf").unwrap();
 
-            #[cfg(debug_assertions)]
-            file.write(ctx.as_slice());
+            let line = parse_binary_live_lines(ctx).unwrap();
 
-            let mut cursor = std::io::Cursor::new(ctx);
+            let mut pdf = pdf_canvas::Pdf::new(file).unwrap();
 
-            parse_binary_live_lines(&mut cursor);
+            pdf.render_page(1404.0, 1872.0, |canvas| {
+                for dot in line.points {
+                    canvas.circle(dot.x as f32, dot.y as f32, dot.width as f32);
+                    canvas.stroke();
+                }
+
+                canvas.stroke()
+            });
+
+            pdf.finish();
 
             Continue(true)
         });

@@ -23,10 +23,21 @@ pub enum PenColor {
     WHITE,
 }
 
-impl From<String> for PenType {
-    fn from(identifier: String) -> Self {
+impl From<&String> for PenColor {
+    fn from(color: &String) -> Self {
+        match color.as_str() {
+            "Black" => PenColor::BLACK,
+            "White" => PenColor::WHITE,
+            _ => PenColor::GRAY,
+        }
+    }
+}
+
+impl From<&String> for PenType {
+    fn from(identifier: &String) -> Self {
         match identifier.as_str() {
-            "Pencilv2" => PenType::SharpPencil,
+            "Pencilv2" => PenType::TiltPencil,
+            "SharpPencilv2" => PenType::SharpPencil,
             _ => PenType::UNKNWON,
         }
     }

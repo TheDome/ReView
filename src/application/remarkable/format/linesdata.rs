@@ -1,171 +1,107 @@
-use std::io;
-use std::io::Read;
-use std::panic::catch_unwind;
+use std::io::{Cursor, Error, ErrorKind};
 
-use byteorder::{LittleEndian, ReadBytesExt};
-use cairo::debug_reset_static_data;
-use gdk::keys::constants::v;
-use log::{debug, trace};
+use log::{debug, trace, warn};
 
-use crate::application::remarkable::format::data::{Line, PenColor, Point};
+use crate::application::remarkable::format::data::{Line, PenColor, PenType, Point};
+use crate::application::remarkable::format::data::PenColor::{BLACK, WHITE};
+use crate::application::remarkable::format::data::PenType::TiltPencil;
+use crate::qt_json::elements::{JSONBaseValue, JsonValue};
+use crate::qt_json::q_json_document::QJSONDocument;
 
-fn read_len(expected: u16, reader: &mut dyn io::Read) {
-    let mut len = [0; 2];
-    reader.read(&mut len);
-    let len = (len[0] as u16) | (len[1] as u16) << 8;
-
-    assert_eq!(len, expected, "Length of string not found. Aborting");
+struct LiveViewUpdate {
+    page: u8,
+    line: Line,
+    layer: u8,
+    id: String,
 }
 
-pub fn parse_binary_live_lines(file: &mut dyn io::Read) -> Line {
-    let mut points = vec![];
+pub fn parse_binary_live_lines(data: Vec<u8>) -> Result<Line, std::io::Error> {
+    let json = QJSONDocument::from_binary(data)?;
 
-    debug!("Parsing data");
-    let reader = file;
+    debug!("Successfully parsed data");
 
-    debug!("Truncating the first 24 (+id) Bytes");
-    reader.read_exact(&mut [0; 30]);
+    let base = match json.base {
+        JSONBaseValue::Array(a) => {
+            warn!("Did not expect an Array as JSON");
+            trace!("{:?}", a);
+            Err(Error::new(
+                ErrorKind::InvalidData,
+                "Did not expect an array",
+            ))
+        }
+        JSONBaseValue::Object(o) => Ok(o),
+    }?;
 
-    // Now read the ID
-    // This is a 36 Byte UUID
-    let mut id = [0; 36];
-    reader.read_exact(&mut id);
+    let base_info = base.values;
 
-    trace!("ID is: {:?}", String::from_utf8_lossy(&id));
+    let lines = match base_info.get("lines") {
+        Some(JsonValue::Object(a)) => Ok(a),
+        Some(a) => Err(Error::new(
+            ErrorKind::InvalidData,
+            format!("Expected an Object. Got: {:?}", a),
+        )),
+        None => Err(Error::new(
+            ErrorKind::InvalidData,
+            "Did not expect no lines",
+        )),
+    }?;
 
-    //TODO: Find meaning of bytes
-    reader.read_exact(&mut [0; 14]);
+    let mut points = Vec::new();
 
-    let layer = reader.read_u16::<LittleEndian>().unwrap();
+    if let Some(JsonValue::Array(array_entries)) = lines.values.get("points") {
+        for line in array_entries {
+            let addable = match line {
+                JsonValue::Object(o) => {
+                    let vals = &(o).values;
 
-    trace!("Layer: {}", layer);
+                    let direction = parse_to_number(vals.get("direction"))?;
+                    let pressure = parse_to_number(vals.get("direction"))?;
+                    let speed = parse_to_number(vals.get("direction"))?;
+                    let width = parse_to_number(vals.get("direction"))?;
+                    let x = parse_to_number(vals.get("direction"))?;
+                    let y = parse_to_number(vals.get("direction"))?;
 
-    reader.read(&mut [0; 14]);
-
-    let lines = reader.read_u32::<LittleEndian>().unwrap();
-
-    trace!("Lines: {}", lines);
-
-    // What does this do?
-    reader.read(&mut [0; 12]);
-
-    reader.read(&mut [0; 8]);
-
-    let len = reader.read_u16::<LittleEndian>().unwrap();
-    let mut brush = vec![0; len as usize];
-    reader.read(&mut brush);
-    let brush = String::from_utf8(brush).unwrap();
-
-    trace!("Using brush: {:?}", brush);
-
-    reader.read_u8();
-    reader.read_u32::<LittleEndian>();
-
-    reader.read(&mut [0; 9]);
-
-    let color_len = reader.read_u16::<LittleEndian>().unwrap();
-    let mut color = vec![0; color_len as usize];
-    reader.read(&mut color);
-    reader.read_u8();
-    let color = String::from_utf8(color).unwrap();
-
-    trace!("Color: {:?}", color);
-
-    reader.read_u32::<LittleEndian>();
-
-    reader.read(&mut [0; 9]);
-
-    let no_points = reader.read_u16::<LittleEndian>().unwrap();
-    trace!("Points: {}", no_points);
-
-    reader.read(&mut [0; 25]);
-
-    let mut counter = 0;
-
-    debug!("Entering loop");
-    while counter < no_points {
-        read_len(9, reader);
-
-        reader.read(&mut [0; 10]); // Discard "direction" string + 1b
-
-        let direction = reader.read_f64::<LittleEndian>().unwrap();
-        trace!("Direction is: {:?}", direction);
-
-        reader.read_u32::<LittleEndian>();
-
-        reader.read(&mut [0; 4]);
-
-        let pressure = reader.read_f64::<LittleEndian>().unwrap();
-
-        trace!("Pressure is: {}", pressure);
-
-        reader.read_u32::<LittleEndian>();
-
-        read_len(5, reader);
-
-        reader.read(&mut [0; 6]); // Discard "speed" string + 1b
-
-        let speed = reader.read_f64::<LittleEndian>().unwrap();
-        reader.read_u32::<LittleEndian>(); // Discard
-        trace!("Speed is: {:?}", speed);
-
-        // Width
-        read_len(5, reader);
-        reader.read(&mut [0; 6]);
-
-        let width = reader.read_f64::<LittleEndian>().unwrap();
-        trace!("Width is: {:?}", width);
-
-        reader.read_u32::<LittleEndian>(); // Discard
-
-        // X
-        read_len(1, reader);
-        reader.read_u16::<LittleEndian>();
-
-        let x = reader.read_f64::<LittleEndian>().unwrap();
-        trace!("X is: {:?}", x);
-
-        reader.read_u32::<LittleEndian>();
-
-        // Y
-        read_len(1, reader);
-        reader.read_u16::<LittleEndian>();
-
-        let y = reader.read_f64::<LittleEndian>().unwrap();
-        trace!("Y is: {:?}", x);
-
-        reader.read_u32::<LittleEndian>();
-
-        reader.read(&mut [0; 36]);
-
-        points.push(Point {
-            y,
-            x,
-            pressure,
-            speed,
-            width,
-        });
-
-        debug!(
-            "Gathered line: ({},{}) in direction: {} with speed: {} and pressure: {}",
-            x, y, direction, speed, pressure
-        );
-
-        counter += 1;
+                    Ok(Point {
+                        width: *width,
+                        speed: *speed,
+                        pressure: *pressure,
+                        y: *y,
+                        x: *x,
+                    })
+                }
+                _ => Err(Error::new(
+                    ErrorKind::InvalidData,
+                    "Expected points to be an object",
+                )),
+            }?;
+            points.push(addable);
+        }
+    } else {
+        warn!("Could not parse points. Skipping");
     }
 
-    debug!("Lines are finished. Footer incoming");
-    trace!("Read {} points", counter);
+    let mut brush: Option<PenType> = None;
 
-    let color = match color.as_str() {
-        "Black" => PenColor::BLACK,
-        "White" => PenColor::WHITE,
-        _ => PenColor::GRAY,
-    };
+    if let Some(JsonValue::String(brush_type)) = lines.values.get("brush") {
+        brush = Some(brush_type.into());
+    }
 
-    Line {
+    let mut color: Option<PenColor> = None;
+
+    if let Some(JsonValue::String(color_type)) = lines.values.get("color") {
+        color = Some(color_type.into());
+    }
+
+    Ok(Line {
         points,
-        brush: brush.into(),
-        color: color.into(),
+        brush: brush.unwrap_or(TiltPencil),
+        color: color.unwrap_or(BLACK),
+    })
+}
+
+fn parse_to_number(val: Option<&JsonValue>) -> Result<&f64, Error> {
+    match val.unwrap_or(&JsonValue::Number(0.0)) {
+        JsonValue::Number(n) => Ok(n),
+        v => Err(Error::new(ErrorKind::InvalidData, format!("Expected an f64. Got: {:?}", v))),
     }
 }

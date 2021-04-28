@@ -1,6 +1,11 @@
 use log::{debug, info};
 
 mod application;
+mod qt_json;
+
+#[macro_use]
+extern crate num_derive;
+extern crate num_traits;
 
 #[tokio::main(flavor = "multi_thread")]
 async fn main() {
