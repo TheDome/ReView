@@ -111,6 +111,9 @@ impl Config {
         let home_path = Config::get_config_path();
 
         debug!("Saving config to file {:?}", home_path);
+
+        trace!("usertoken: {:?}", self.session_key);
+        trace!("devicetoken: {:?}", self.device_key);
     }
 
     #[cfg(not(debug_assertions))]
