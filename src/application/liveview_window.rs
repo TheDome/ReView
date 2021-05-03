@@ -31,7 +31,7 @@ impl LiveViewWindow {
     pub fn new(host: &str, auth0_id: &str, session_token: &str) -> Self {
         let (receiver, socket) = data_socket(host.to_string(), auth0_id, session_token.to_string());
 
-        /*   let (sender, receiver) = glib::MainContext::channel(glib::PRIORITY_DEFAULT_IDLE);
+      /*     let (sender, receiver) = glib::MainContext::channel(glib::PRIORITY_DEFAULT_IDLE);
 
         std::thread::spawn(move  ||{
 
@@ -47,8 +47,8 @@ impl LiveViewWindow {
 
             sender.send(data.to_vec());
 
-        });*/
-
+        });
+*/
         let builder = gtk::Builder::from_string(WINDOWS_STRING);
 
         let window: gtk::Window = builder
@@ -77,7 +77,7 @@ impl LiveViewWindow {
 
         std::thread::spawn(move || {
             rx.recv();
-            socket.join().expect("Couldn't join the socket");
+          //  socket.join().expect("Couldn't join the socket");
         });
 
         window.show_all();
@@ -103,12 +103,13 @@ impl LiveViewWindow {
 
         let receiver = self.receiver;
 
+        let context = Context::new(&surface);
+
         receiver.attach(None, move |data| {
             debug!("Received data");
 
             let line = parse_binary_live_lines(data);
 
-            let context = Context::new(&surface);
             context.set_source_rgb(1., 1., 1.);
             context.paint();
 
@@ -131,10 +132,10 @@ impl LiveViewWindow {
 
                         for p in points {
                             context.set_line_width(p.width);
-                            context.arc(p.x, p.y, p.width, 0.0, 2.0 * PI)
+                            context.arc(p.x, p.y, p.width, 0.0, 2.0 * PI);
+                            context.fill_preserve();
                         }
 
-                        context.fill_preserve();
                         context.restore();
 
                         context.stroke();
