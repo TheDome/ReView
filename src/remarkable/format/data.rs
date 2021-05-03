@@ -1,3 +1,6 @@
+pub const DEVICE_WIDTH: f32 = 1404.0;
+pub const DEVICE_HEIGHT: f32 = 1872.0;
+
 #[derive(Debug, Eq, PartialEq)]
 pub enum PenType {
     BallPoint,

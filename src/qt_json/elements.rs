@@ -33,7 +33,6 @@ impl Object {
 
         assert_eq!(data.len(), (size + 4) as usize);
 
-
         Ok(Object {
             size,
             values: HashMap::new(),

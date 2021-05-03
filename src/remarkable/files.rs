@@ -3,11 +3,11 @@ use std::borrow::Borrow;
 use gtk::targets_include_rich_text;
 use log::{debug, info, trace};
 
-use crate::application::remarkable::config::{
+use crate::remarkable::constants::{
     PROTOCOL, REMARKABLE_STORAGE_DISCOVERY_PATH, REMARKABLE_STORAGE_PATH,
 };
-use crate::application::remarkable::remarkable_tree;
-use crate::application::remarkable::remarkable_tree::{File, Item};
+use crate::remarkable::remarkable_tree;
+use crate::remarkable::remarkable_tree::{File, Item};
 
 pub struct APIConnection<'a> {
     pub storage_url: &'a str,

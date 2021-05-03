@@ -4,6 +4,7 @@ use std::io::{BufRead, BufReader, BufWriter};
 use std::path::{Path, PathBuf};
 
 use gio::prelude::DataInputStreamExtManual;
+use glib::base64_decode;
 use log::{debug, info, trace};
 
 use crate::main;
@@ -103,6 +104,41 @@ impl Config {
                 debug!("File not found. Using stock config");
                 trace!("{:?}", e);
             }
+        }
+    }
+
+    pub fn auth0_id(&self) -> Option<String> {
+        match &self.session_key {
+            Some(key) => {
+                let token = String::from(key.as_str());
+
+                let pieces = token.split(".").collect::<Vec<&str>>();
+
+                let data = pieces.get(1);
+
+                debug!("Result: {:?}", data);
+
+                match data {
+                    Some(data) => {
+                        let userdata = base64_decode(*data);
+                        let userdata =
+                            json::parse(String::from_utf8_lossy(userdata.as_slice()).as_ref());
+
+                        match userdata {
+                            Ok(data) => {
+                                let profile = &data["auth0-profile"];
+                                let profile = &profile["UserID"];
+
+                                debug!("Using profile: {}", profile);
+                                Some(profile.to_string())
+                            }
+                            Err(_) => None,
+                        }
+                    }
+                    None => None,
+                }
+            }
+            None => None,
         }
     }
 

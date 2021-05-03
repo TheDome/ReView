@@ -1,7 +1,6 @@
 mod application_config;
 mod config;
 mod liveview_window;
-mod remarkable;
 
 mod ui;
 
@@ -15,8 +14,8 @@ pub mod application {
 
     use gio::prelude::*;
     use glib;
-    use glib::Continue;
     use glib::Receiver;
+    use glib::{Continue, DateTime};
     use gtk::prelude::*;
     use gtk::{
         ApplicationWindow, Builder, ButtonsType, DialogFlags, MessageDialog, MessageType, Window,
@@ -26,11 +25,12 @@ pub mod application {
     use crate::application::application_config::{APPLICATION_IDENTIFIER, APPLICATION_VERSION};
     use crate::application::config::Config;
     use crate::application::liveview_window::LiveViewWindow;
-    use crate::application::remarkable;
-    use crate::application::remarkable::tokens::BaseDomains;
-    use crate::application::remarkable::web_socket::SocketEvent;
-    use crate::application::remarkable::web_socket::SocketEvent::LiveSyncStarted;
     use crate::application::ui::build_menu_bar;
+    use crate::remarkable;
+    use crate::remarkable::tokens::BaseDomains;
+    use crate::remarkable::web_socket::SocketEvent;
+    use crate::remarkable::web_socket::SocketEvent::LiveSyncStarted;
+    use websocket::futures::future::result;
 
     pub const WINDOWS_STRING: &str = include_str!("gui/Windows.glade");
 
@@ -83,12 +83,7 @@ pub mod application {
                 None => "".into(),
             };
 
-            let rx = init_session(
-                &service_directories.borrow().storage,
-                device_token.as_str(),
-                session_token.as_str(),
-                &builder,
-            );
+            let rx = init_session(device_token.as_str(), session_token.as_str(), &builder);
 
             let nofifc_url = String::from(&service_directories.notifications);
             let livesync_host = String::from(&service_directories.livesync);
@@ -98,6 +93,8 @@ pub mod application {
                 .expect("Failed to find button box");
 
             let (lstx, lsrx) = glib::MainContext::channel(glib::PRIORITY_DEFAULT_IDLE);
+
+            // LiveViewWindow::new(String::from(&livesync_host).as_str(),"","").listen();
 
             tokio::spawn(async move {
                 let not = String::from(nofifc_url);
@@ -162,15 +159,34 @@ pub mod application {
      * - if not generate one with the OTP
      */
     fn init_session(
-        storage_url: &str,
         device_token: &str,
         session_token: &str,
         builder: &Builder,
     ) -> std::sync::mpsc::Receiver<(String, String)> {
         let (tx, rx) = channel();
 
-        let result = probe_session_token(storage_url, session_token);
-        if result.recv().unwrap() == true {
+        let json = json::parse(session_token);
+
+        let exp = match json {
+            Ok(da) => da["exp"].as_number(),
+            Err(_) => None,
+        };
+
+        let okay = match exp {
+            Some(d) => {
+                let exp = d.as_fixed_point_i64(0);
+
+                let date = DateTime::from_unix_utc(exp.unwrap_or(0));
+                let diff = date.difference(&DateTime::new_now_utc());
+
+                debug!("Diff is : {}", diff);
+
+                diff > 0
+            }
+            None => false,
+        };
+
+        if okay {
             debug!("Session token is Okay!");
             trace!("Using token {}", session_token);
             tx.send((String::from(device_token), String::from(session_token)));

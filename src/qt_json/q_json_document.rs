@@ -31,9 +31,11 @@ enum QTValueType {
 }
 
 #[cfg(not(feature = "QJsonBigEndian"))]
-const QT_JSON_TAG: u32 = ((('s' as u32) << 24) | (('j' as u32) << 16) | (('b' as u32) << 8) | ('q' as u32));
+const QT_JSON_TAG: u32 =
+    ((('s' as u32) << 24) | (('j' as u32) << 16) | (('b' as u32) << 8) | ('q' as u32));
 #[cfg(feature = "QJsonBigEndian")]
-const QT_JSON_TAG: u32 = ((('q' as u32) << 24) | (('b' as u32) << 16) | (('j' as u32) << 8) | ('s' as u32));
+const QT_JSON_TAG: u32 =
+    ((('q' as u32) << 24) | (('b' as u32) << 16) | (('j' as u32) << 8) | ('s' as u32));
 
 #[cfg(not(feature = "QJsonBigEndian"))]
 pub type Endianess = LittleEndian;
@@ -49,15 +51,11 @@ impl QJSONDocument {
         let tag = reader.read_u32::<Endianess>()?;
         let version = reader.read_u32::<Endianess>()?;
 
-        assert_eq!(
-            tag,
-            QT_JSON_TAG
-        );
+        assert_eq!(tag, QT_JSON_TAG);
 
         assert_eq!(version, 1);
 
         debug!("QBJS Version: {}", version);
-
 
         let elem = Self::load_element(data[8..].to_vec())?;
 
@@ -65,11 +63,14 @@ impl QJSONDocument {
             JsonValue::Object(o) => JSONBaseValue::Object(o),
             JsonValue::Array(a) => JSONBaseValue::Array(a),
             _ => {
-                return Err(Error::new(ErrorKind::InvalidData, "The Base must be either an Array or object"));
+                return Err(Error::new(
+                    ErrorKind::InvalidData,
+                    "The Base must be either an Array or object",
+                ));
             }
         };
 
-        let mut doc = QJSONDocument { tag, version, base };
+        let doc = QJSONDocument { tag, version, base };
 
         debug!("[QBJS] Parsing finished!");
 
@@ -98,10 +99,10 @@ impl QJSONDocument {
 
         let base = match is_object {
             true => Self::load_object(&data, table, len, size),
-            false => Self::load_array(&data, table, len, size)
+            false => Self::load_array(&data, table, len, size),
         };
 
-        debug!("{:?}", base);
+        trace!("{:?}", base);
 
         Ok(base?)
     }
@@ -109,7 +110,12 @@ impl QJSONDocument {
     /**
      * loads an object from the stream
      */
-    fn load_object(data: &Vec<u8>, offsets: &[u8], len: u32, size: u32) -> Result<JsonValue, Error> {
+    fn load_object(
+        data: &Vec<u8>,
+        offsets: &[u8],
+        len: u32,
+        size: u32,
+    ) -> Result<JsonValue, Error> {
         debug!("Loading object ..");
         trace!("Expected len: {}", len);
         trace!("Actual len: {}", offsets.len() / 4);
@@ -151,7 +157,14 @@ impl QJSONDocument {
             trace!(" > Key is: '{}'", key);
             trace!(" > Reading value of type: {:?}", value_type);
 
-            let value = Self::decode_value(value_type, orig_value, latin_or_int, latin_key, size as usize, data)?;
+            let value = Self::decode_value(
+                value_type,
+                orig_value,
+                latin_or_int,
+                latin_key,
+                size as usize,
+                data,
+            )?;
 
             trace!(" > Value is: {:?}", value);
 
@@ -199,18 +212,31 @@ impl QJSONDocument {
 
             trace!(" > Reading value of type: {:?}", value_type);
 
-            let value = Self::decode_value(value_type, orig_value, latin_or_int, latin_key, size as usize, data)?;
+            let value = Self::decode_value(
+                value_type,
+                orig_value,
+                latin_or_int,
+                latin_key,
+                size as usize,
+                data,
+            )?;
 
             trace!(" > Value is: {:?}", value);
 
             values.push(value);
         }
 
-
         Ok(JsonValue::Array(values))
     }
 
-    fn decode_value(value_type: Option<QTValueType>, orig_value: u32, latin_or_int: bool, latin_key: bool, size: usize, data: &[u8]) -> Result<JsonValue, std::io::Error> {
+    fn decode_value(
+        value_type: Option<QTValueType>,
+        orig_value: u32,
+        latin_or_int: bool,
+        latin_key: bool,
+        size: usize,
+        data: &[u8],
+    ) -> Result<JsonValue, std::io::Error> {
         let value = match value_type {
             Some(QTValueType::Double) => {
                 if latin_or_int {
@@ -234,7 +260,10 @@ impl QJSONDocument {
             Some(QTValueType::Object) | Some(QTValueType::Array) => {
                 trace!(" > > Value located at offset: {:0X?}", orig_value);
 
-                trace!(" > > Trimming {} bytes from object", data.len() - size as usize);
+                trace!(
+                    " > > Trimming {} bytes from object",
+                    data.len() - size as usize
+                );
                 let value_data = data.split_at(size as usize).0;
 
                 trace!(" > > Trimming {} bytes from object top", orig_value);

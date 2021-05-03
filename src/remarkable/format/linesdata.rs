@@ -2,11 +2,11 @@ use std::io::{Cursor, Error, ErrorKind};
 
 use log::{debug, trace, warn};
 
-use crate::application::remarkable::format::data::{Line, PenColor, PenType, Point};
-use crate::application::remarkable::format::data::PenColor::{BLACK, WHITE};
-use crate::application::remarkable::format::data::PenType::TiltPencil;
 use crate::qt_json::elements::{JSONBaseValue, JsonValue};
 use crate::qt_json::q_json_document::QJSONDocument;
+use crate::remarkable::format::data::PenColor::{BLACK, WHITE};
+use crate::remarkable::format::data::PenType::TiltPencil;
+use crate::remarkable::format::data::{Line, PenColor, PenType, Point};
 
 struct LiveViewUpdate {
     page: u8,
@@ -55,11 +55,11 @@ pub fn parse_binary_live_lines(data: Vec<u8>) -> Result<Line, std::io::Error> {
                     let vals = &(o).values;
 
                     let direction = parse_to_number(vals.get("direction"))?;
-                    let pressure = parse_to_number(vals.get("direction"))?;
-                    let speed = parse_to_number(vals.get("direction"))?;
-                    let width = parse_to_number(vals.get("direction"))?;
-                    let x = parse_to_number(vals.get("direction"))?;
-                    let y = parse_to_number(vals.get("direction"))?;
+                    let pressure = parse_to_number(vals.get("p"))?;
+                    let speed = parse_to_number(vals.get("speed"))?;
+                    let width = parse_to_number(vals.get("width"))?;
+                    let x = parse_to_number(vals.get("x"))?;
+                    let y = parse_to_number(vals.get("y"))?;
 
                     Ok(Point {
                         width: *width,
@@ -102,6 +102,9 @@ pub fn parse_binary_live_lines(data: Vec<u8>) -> Result<Line, std::io::Error> {
 fn parse_to_number(val: Option<&JsonValue>) -> Result<&f64, Error> {
     match val.unwrap_or(&JsonValue::Number(0.0)) {
         JsonValue::Number(n) => Ok(n),
-        v => Err(Error::new(ErrorKind::InvalidData, format!("Expected an f64. Got: {:?}", v))),
+        v => Err(Error::new(
+            ErrorKind::InvalidData,
+            format!("Expected an f64. Got: {:?}", v),
+        )),
     }
 }

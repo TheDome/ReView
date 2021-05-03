@@ -2,6 +2,7 @@ use log::{debug, info};
 
 mod application;
 mod qt_json;
+mod remarkable;
 
 #[macro_use]
 extern crate num_derive;

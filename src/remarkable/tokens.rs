@@ -8,7 +8,7 @@ use reqwest::header::AUTHORIZATION;
 use reqwest::{Client, Response, StatusCode};
 use uuid::Uuid;
 
-use crate::application::remarkable::config::{
+use crate::remarkable::constants::{
     PROTOCOL, REMARKABLE_DEVICE_DESCRIPTION, REMARKABLE_LIVESYNC_DISCOVERY_PARAMS,
     REMARKABLE_LIVESYNC_DISCOVERY_PATH, REMARKABLE_NOTIFICATION_DISCOVERY_PARAMS,
     REMARKABLE_NOTIFICATION_DISCOVERY_PATH, REMARKABLE_SERVICE_BASE_API,
@@ -87,7 +87,7 @@ pub async fn discover() -> Result<BaseDomains, String> {
         (Ok(storage), Ok(notification), Ok(livesync)) => {
             trace!("Got data: storage:{:?}", storage);
             trace!("Got data: notification:{:?}", notification);
-            trace!("Got data: ivesync:{:?}", livesync);
+            trace!("Got data: livesync:{:?}", livesync);
 
             let sthost = get_host(storage.text().await.unwrap());
             let lvhost = get_host(livesync.text().await.unwrap());
@@ -111,7 +111,7 @@ pub async fn discover() -> Result<BaseDomains, String> {
     let result = BaseDomains {
         storage: sthost.unwrap(),
         notifications: nthost.unwrap(),
-        livesync: lvhost.unwrap(),
+        livesync: lvhost.unwrap_or("".into()),
     };
 
     debug!("Returning  {:?}", &result);

@@ -17,11 +17,10 @@ reqwest = { version = "0.11.3", features = ["default-tls", "json"] }
 env_logger = "0.8.3"
 websocket = "0.26.2"
 json = "0.12.4"
-uuid = { version = "0.8.2", features = ["serde", "v4", ] }
+uuid = { version = "0.8.2", features = ["v4"] }
 glib = "0.10.3"
-cairo-rs = { version = "^0", features = ["v1_16"] }
+cairo-rs = { version = "^0", features = ["v1_16", "pdf"] }
 gdk = "0.13.2"
-pdf-canvas = "*"
 byteorder = "1.4.3"
 num = "0.4"
 num-traits = "0.2"

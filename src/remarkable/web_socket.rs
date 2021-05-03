@@ -12,11 +12,12 @@ use websocket::result::WebSocketOtherError::StatusCodeError;
 use websocket::websocket_base::result::WebSocketError::Other;
 use websocket::ClientBuilder;
 
-use crate::application::remarkable::config::{
+use crate::remarkable::constants::{
     REMARKABLE_LIVEVIEW_SUBSCRIBER_PATH, REMARKABLE_NOTIFICATION_DISCOVERY_PATH,
     REMARKABLE_NOTIFICATION_SOCKET_PATH,
 };
-use crate::application::remarkable::web_socket::SocketEvent::LiveSyncStarted;
+use crate::remarkable::web_socket::SocketEvent::LiveSyncStarted;
+use std::thread::JoinHandle;
 
 const PROTOCOL: &str = "wss://";
 
@@ -147,11 +148,10 @@ pub fn data_socket(
     base: String,
     auth0_id: &str,
     session_token: String,
-) -> (glib::Receiver<Vec<u8>>, std::sync::mpsc::Sender<()>) {
+) -> (glib::Receiver<Vec<u8>>, JoinHandle<()>) {
     debug!("Listening on new data socket");
 
     let (datatx, datarx) = glib::MainContext::channel(glib::PRIORITY_DEFAULT);
-    let (stoptx, stoprx) = std::sync::mpsc::channel();
 
     let mut path = PROTOCOL.to_string();
     path.push_str(base.as_str());
@@ -184,7 +184,7 @@ pub fn data_socket(
                 }
             };
 
-            trace!("Awaiting livesync messages");
+            debug!("Awaiting livesync messages");
 
             for incoming_message in client.incoming_messages() {
                 let message = match incoming_message {
@@ -203,17 +203,9 @@ pub fn data_socket(
                     }
                 };
 
-                match stoprx.recv_timeout(Duration::from_millis(1)) {
-                    Ok(_) => {
-                        trace!("Stopping thread");
-                        break;
-                    }
-                    _ => {}
-                }
-
                 let _ = datatx.send(data);
             }
         });
 
-    (datarx, stoptx)
+    (datarx, th.unwrap())
 }
