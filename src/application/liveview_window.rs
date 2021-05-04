@@ -27,6 +27,8 @@ pub struct LiveViewWindow {
     surface: cairo::PdfSurface,
 }
 
+const WINDOW_SCALER:f64 = 2.0;
+
 impl LiveViewWindow {
     pub fn new(host: &str, auth0_id: &str, session_token: &str) -> Self {
         let (receiver, socket) = data_socket(host.to_string(), auth0_id, session_token.to_string());
@@ -64,7 +66,7 @@ impl LiveViewWindow {
         path.push(uuid::Uuid::new_v4().to_string());
         path.set_extension("pdf");
 
-        let surface = PdfSurface::new(DEVICE_WIDTH as f64, DEVICE_HEIGHT as f64, path)
+        let surface = PdfSurface::new(DEVICE_WIDTH / WINDOW_SCALER, DEVICE_HEIGHT /WINDOW_SCALER, path)
             .expect("Failed to create PDF");
 
         let surface_clone = surface.clone();
@@ -75,14 +77,14 @@ impl LiveViewWindow {
             let _ = tx.send(());
         });
 
-        std::thread::spawn(move || {
+        tokio::spawn({
             rx.recv();
-          //  socket.join().expect("Couldn't join the socket");
+            socket.join().expect("Couldn't join the socket");
         });
 
         window.show_all();
 
-        draw_area.set_size_request(DEVICE_WIDTH as i32, DEVICE_HEIGHT as i32);
+        draw_area.set_size_request((DEVICE_WIDTH / WINDOW_SCALER) as i32, (DEVICE_HEIGHT / WINDOW_SCALER) as i32);
 
         LiveViewWindow {
             receiver,
@@ -104,24 +106,24 @@ impl LiveViewWindow {
         let receiver = self.receiver;
 
         let context = Context::new(&surface);
+        context.set_source_rgb(1., 1., 1.);
+        context.paint();
 
         receiver.attach(None, move |data| {
             debug!("Received data");
 
             let line = parse_binary_live_lines(data);
 
-            context.set_source_rgb(1., 1., 1.);
-            context.paint();
-
             match line {
                 Ok(line) => {
                     trace!("Drawing {} points", line.points.len());
 
                     let points = line.points;
+                    let (r,g,b) = line.color.as_rgb();
 
                     if points.len() > 0 {
                         context.save();
-                        context.set_source_rgb(0., 0., 0.);
+                        context.set_source_rgb(r,g,b);
 
                         trace!("Starting at: {:?}", points[0]);
                         trace!(
@@ -132,8 +134,8 @@ impl LiveViewWindow {
 
                         for p in points {
                             context.set_line_width(p.width);
-                            context.arc(p.x, p.y, p.width, 0.0, 2.0 * PI);
-                            context.fill_preserve();
+                            context.arc(p.x / WINDOW_SCALER, p.y/WINDOW_SCALER, p.width / 2.0 / WINDOW_SCALER, 0.0, 2.0 * PI);
+                            context.fill();
                         }
 
                         context.restore();
