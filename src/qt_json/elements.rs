@@ -1,9 +1,9 @@
 use std::collections::HashMap;
-use std::io::{Cursor, Error, Read, SeekFrom};
-use std::path::Component::CurDir;
+use std::io::{Cursor, Error};
+
 
 use byteorder::ReadBytesExt;
-use tokio::io::AsyncSeekExt;
+
 
 use crate::qt_json::q_json_document::Endianess;
 
@@ -41,7 +41,7 @@ impl Object {
 }
 
 #[derive(Debug)]
-pub enum JSONBaseValue {
+pub enum JsonBaseValue {
     Object(Object),
     Array(Vec<JsonValue>),
 }
@@ -52,7 +52,7 @@ pub enum JSONBaseValue {
 * A JSON Document can have either an Array or An Object as a Base
 */
 #[derive(Debug)]
-pub struct JSONBase {
+pub struct JsonBase {
     /**
      * The size of the overall Object (not needed in Rust)
      */
@@ -65,14 +65,14 @@ pub struct JSONBase {
     /**
      * The value of this json
      */
-    pub value: JSONBaseValue,
+    pub value: JsonBaseValue,
 }
 
 #[derive(Debug)]
-pub struct QJSONDocument {
+pub struct QJsonDocument {
     pub tag: u32,
     // qbjs
     pub version: u32,
     // 1
-    pub start: JSONBase,
+    pub start: JsonBase,
 }

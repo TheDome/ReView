@@ -5,16 +5,16 @@ mod liveview_window;
 mod ui;
 
 pub mod application {
-    use std::borrow::Borrow;
+    
     use std::env::args;
     use std::sync::mpsc;
     use std::sync::mpsc::channel;
     use std::thread;
-    use std::time::Duration;
+    
 
     use gio::prelude::*;
     use glib;
-    use glib::Receiver;
+    
     use glib::{Continue, DateTime};
     use gtk::prelude::*;
     use gtk::{
@@ -22,7 +22,7 @@ pub mod application {
     };
     use log::{debug, error, info, trace, warn};
 
-    use crate::application::application_config::{APPLICATION_IDENTIFIER, APPLICATION_VERSION};
+    use crate::application::application_config::{APPLICATION_IDENTIFIER};
     use crate::application::config::Config;
     use crate::application::liveview_window::LiveViewWindow;
     use crate::application::ui::build_menu_bar;
@@ -30,7 +30,7 @@ pub mod application {
     use crate::remarkable::tokens::BaseDomains;
     use crate::remarkable::web_socket::SocketEvent;
     use crate::remarkable::web_socket::SocketEvent::LiveSyncStarted;
-    use websocket::futures::future::result;
+    
 
     pub const WINDOWS_STRING: &str = include_str!("gui/Windows.glade");
 
@@ -74,12 +74,12 @@ pub mod application {
             let config = init_config();
 
             let session_token = match config.session_key {
-                Some(key) => String::from(key),
+                Some(key) => key,
                 None => "".into(),
             };
 
             let device_token = match config.device_key {
-                Some(key) => String::from(key),
+                Some(key) => key,
                 None => "".into(),
             };
 
@@ -97,8 +97,8 @@ pub mod application {
             // LiveViewWindow::new(String::from(&livesync_host).as_str(),"","").listen();
 
             tokio::spawn(async move {
-                let not = String::from(nofifc_url);
-                let live = String::from(livesync_host);
+                let not = nofifc_url;
+                let live = livesync_host;
 
                 match rx.recv() {
                     Ok((device_token, session_token)) => {
@@ -115,8 +115,8 @@ pub mod application {
                 };
             });
 
-            let host = String::from(service_directories.livesync);
-            let list = button_list.clone();
+            let host = service_directories.livesync;
+            let list = button_list;
 
             lsrx.attach(None, move |(session_token, auth0_id)| {
                 debug!("Creating new button");
@@ -280,7 +280,7 @@ pub mod application {
             }
             Err(e) => {
                 error!("Error at discovery of url: {}", e);
-                Err(e.to_string())
+                Err(e)
             }
         }
     }

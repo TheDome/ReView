@@ -1,19 +1,19 @@
 use std::f64::consts::PI;
-use std::fs::{read_to_string, File};
-use std::io::Write;
-use std::path::Path;
-use std::sync::mpsc::channel;
-use std::time::Duration;
+
+
+
+
+
 
 use cairo::PdfSurface;
-use cairo::{Context, Format, Surface, SurfaceType};
-use gdk;
-use gdk::WindowAttr;
-use gio::dbus_address_escape_value;
-use glib::{Continue, MainContext};
+use cairo::{Context};
+
+
+
+use glib::{Continue};
 use gtk::prelude::*;
-use gtk::{Inhibit, WidgetExt, Window};
-use log::{debug, info, trace, warn};
+use gtk::{Inhibit, WidgetExt};
+use log::{debug, trace, warn};
 
 use crate::application::application::WINDOWS_STRING;
 use crate::remarkable::format::data::{DEVICE_HEIGHT, DEVICE_WIDTH};
@@ -86,12 +86,7 @@ impl LiveViewWindow {
 
         draw_area.set_size_request((DEVICE_WIDTH / WINDOW_SCALER) as i32, (DEVICE_HEIGHT / WINDOW_SCALER) as i32);
 
-        LiveViewWindow {
-            receiver,
-            window,
-            draw_area,
-            surface,
-        }
+        LiveViewWindow { receiver, draw_area, window, surface }
     }
 
     /**
@@ -121,7 +116,7 @@ impl LiveViewWindow {
                     let points = line.points;
                     let (r,g,b) = line.color.as_rgb();
 
-                    if points.len() > 0 {
+                    if !points.is_empty() {
                         context.save();
                         context.set_source_rgb(r,g,b);
 
@@ -158,7 +153,7 @@ impl LiveViewWindow {
         let draw = self.draw_area.clone();
 
         let surface = self.surface.clone();
-        draw.connect_draw(move |area, cx| {
+        draw.connect_draw(move |_area, cx| {
             trace!("Redrawing");
 
             cx.set_source_surface(&surface, 0.0, 0.0);

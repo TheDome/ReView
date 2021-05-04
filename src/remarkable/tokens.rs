@@ -1,10 +1,10 @@
 use std::borrow::Borrow;
 use std::collections::HashMap;
-use std::env::join_paths;
-use std::error::Error;
 
-use log::{debug, info, trace, warn};
-use reqwest::header::AUTHORIZATION;
+
+
+use log::{debug, trace, warn};
+
 use reqwest::{Client, Response, StatusCode};
 use uuid::Uuid;
 
@@ -28,10 +28,7 @@ fn get_host(data: String) -> Option<String> {
     let json = json::parse(&data);
 
     match json {
-        Ok(json) => match json["Host"].as_str() {
-            Some(e) => Some(e.to_string()),
-            _ => None,
-        },
+        Ok(json) => json["Host"].as_str().map(|e| e.to_string()),
         Err(e) => {
             warn!("Failed to parse {}: {}", &data, e);
             None

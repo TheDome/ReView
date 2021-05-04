@@ -1,5 +1,5 @@
 use gio::prelude::*;
-use gio::{Menu, MenuItem, MenuModel};
+use gio::{Menu, MenuItem};
 use gtk::prelude::*;
 use gtk::AboutDialogExt;
 
@@ -34,7 +34,7 @@ fn add_actions(builder: &gtk::Builder) {
     about_dialog.set_version(Some(APPLICATION_VERSION));
     about_dialog.set_authors(
         env!("CARGO_PKG_AUTHORS")
-            .split(";")
+            .split(';')
             .collect::<Vec<&str>>()
             .as_slice(),
     );

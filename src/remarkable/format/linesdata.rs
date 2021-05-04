@@ -1,10 +1,10 @@
-use std::io::{Cursor, Error, ErrorKind};
+use std::io::{Error, ErrorKind};
 
 use log::{debug, trace, warn};
 
-use crate::qt_json::elements::{JSONBaseValue, JsonValue};
+use crate::qt_json::elements::{JsonBaseValue, JsonValue};
 use crate::qt_json::q_json_document::QJSONDocument;
-use crate::remarkable::format::data::PenColor::{BLACK, WHITE};
+use crate::remarkable::format::data::PenColor::{BLACK};
 use crate::remarkable::format::data::PenType::TiltPencil;
 use crate::remarkable::format::data::{Line, PenColor, PenType, Point};
 
@@ -21,7 +21,7 @@ pub fn parse_binary_live_lines(data: Vec<u8>) -> Result<Line, std::io::Error> {
     debug!("Successfully parsed data");
 
     let base = match json.base {
-        JSONBaseValue::Array(a) => {
+        JsonBaseValue::Array(a) => {
             warn!("Did not expect an Array as JSON");
             trace!("{:?}", a);
             Err(Error::new(
@@ -29,7 +29,7 @@ pub fn parse_binary_live_lines(data: Vec<u8>) -> Result<Line, std::io::Error> {
                 "Did not expect an array",
             ))
         }
-        JSONBaseValue::Object(o) => Ok(o),
+        JsonBaseValue::Object(o) => Ok(o),
     }?;
 
     let base_info = base.values;
@@ -54,7 +54,7 @@ pub fn parse_binary_live_lines(data: Vec<u8>) -> Result<Line, std::io::Error> {
                 JsonValue::Object(o) => {
                     let vals = &(o).values;
 
-                    let direction = parse_to_number(vals.get("direction"))?;
+                    let _direction = parse_to_number(vals.get("direction"))?;
                     let pressure = parse_to_number(vals.get("p"))?;
                     let speed = parse_to_number(vals.get("speed"))?;
                     let width = parse_to_number(vals.get("width"))?;

@@ -1,13 +1,13 @@
 #[cfg(test)]
 mod test {
     use log::info;
-    use std::fs::File;
-    use std::io::BufReader;
+    
+    
 
     use crate::remarkable::format::data::PenColor::BLACK;
     use crate::remarkable::format::data::PenType;
     use crate::remarkable::format::linesdata::parse_binary_live_lines;
-    use glib::bitflags::_core::arch::x86_64::_mm256_abs_epi8;
+    
     use num::abs;
 
     #[test]
@@ -18,7 +18,7 @@ mod test {
 
         let data = include_bytes!("example.bin");
 
-        let mut reader = std::io::Cursor::new(data);
+        let _reader = std::io::Cursor::new(data);
 
         let line = parse_binary_live_lines(data.to_vec());
 

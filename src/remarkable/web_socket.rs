@@ -1,19 +1,19 @@
 use std::sync::mpsc;
 use std::sync::mpsc::Receiver;
-use std::time::Duration;
 
-use glib::Continue;
-use log::{debug, error, info, trace, warn};
+
+
+use log::{debug, error, trace, warn};
 use websocket;
-use websocket::futures::future::err;
+
 use websocket::header::{Authorization, Bearer, Headers};
 use websocket::message::OwnedMessage::{Binary, Text};
-use websocket::result::WebSocketOtherError::StatusCodeError;
+
 use websocket::websocket_base::result::WebSocketError::Other;
 use websocket::ClientBuilder;
 
 use crate::remarkable::constants::{
-    REMARKABLE_LIVEVIEW_SUBSCRIBER_PATH, REMARKABLE_NOTIFICATION_DISCOVERY_PATH,
+    REMARKABLE_LIVEVIEW_SUBSCRIBER_PATH,
     REMARKABLE_NOTIFICATION_SOCKET_PATH,
 };
 use crate::remarkable::web_socket::SocketEvent::LiveSyncStarted;
@@ -115,13 +115,10 @@ pub async fn start_socket(base_url: &str, session_token: &str) -> Receiver<Socke
                             let auth0_id = data["message"]["attributes"]["auth0UserID"].as_str();
 
                             let session_token = String::from(&session_token);
-                            let auth0_id = match auth0_id {
-                                Some(id) => Some(String::from(id)),
-                                None => None,
-                            };
+                            let auth0_id = auth0_id.map(String::from);
 
                             match document_id {
-                                Some(d) => {
+                                Some(_d) => {
                                     if auth0_id.is_some() {
                                         tx.send(LiveSyncStarted(session_token, auth0_id.unwrap()));
                                     }
@@ -159,7 +156,7 @@ pub fn data_socket(
 
     trace!("Using url: {}", &path);
 
-    let token = session_token.to_string();
+    let token = session_token;
 
     let th = std::thread::Builder::new()
         .name(format!("livesync {}", &auth0_id))
@@ -176,7 +173,7 @@ pub fn data_socket(
 
             let mut client = match client {
                 Ok(c) => c,
-                Err(Other(e)) => {
+                Err(Other(_e)) => {
                     return;
                 }
                 _ => {

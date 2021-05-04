@@ -1,21 +1,21 @@
-use std::borrow::Borrow;
-use std::collections::HashMap;
-use std::io::{Cursor, Error, ErrorKind, Read, Seek, Write};
-use std::path::Component::CurDir;
 
-use byteorder::{LittleEndian, ReadBytesExt};
-use gtk::License;
+use std::collections::HashMap;
+use std::io::{Cursor, Error, ErrorKind, Read};
+
+
+use byteorder::ReadBytesExt;
+
 use log::{debug, trace, warn};
 use num_traits::FromPrimitive;
 
-use crate::qt_json::elements::{JSONBaseValue, JsonValue, Object};
-use crate::qt_json::q_json_document::QTValueType::Array;
+use crate::qt_json::elements::{JsonBaseValue, JsonValue, Object};
+
 
 pub struct QJSONDocument {
     pub tag: u32,
     pub version: u32,
     // 1
-    pub base: JSONBaseValue,
+    pub base: JsonBaseValue,
 }
 
 #[derive(Debug, Eq, PartialEq, FromPrimitive)]
@@ -32,15 +32,15 @@ enum QTValueType {
 
 #[cfg(not(feature = "QJsonBigEndian"))]
 const QT_JSON_TAG: u32 =
-    ((('s' as u32) << 24) | (('j' as u32) << 16) | (('b' as u32) << 8) | ('q' as u32));
+    (('s' as u32) << 24) | (('j' as u32) << 16) | (('b' as u32) << 8) | ('q' as u32);
 #[cfg(feature = "QJsonBigEndian")]
 const QT_JSON_TAG: u32 =
-    ((('q' as u32) << 24) | (('b' as u32) << 16) | (('j' as u32) << 8) | ('s' as u32));
+    (('q' as u32) << 24) | (('b' as u32) << 16) | (('j' as u32) << 8) | ('s' as u32);
 
 #[cfg(not(feature = "QJsonBigEndian"))]
-pub type Endianess = LittleEndian;
+pub type Endianess = byteorder::LittleEndian;
 #[cfg(feature = "QJsonBigEndian")]
-pub type Endianess = BigEndian;
+pub type Endianess = byteorder::BigEndian;
 
 impl QJSONDocument {
     pub fn from_binary(data: Vec<u8>) -> Result<Self, Error> {
@@ -60,8 +60,8 @@ impl QJSONDocument {
         let elem = Self::load_element(data[8..].to_vec())?;
 
         let base = match elem {
-            JsonValue::Object(o) => JSONBaseValue::Object(o),
-            JsonValue::Array(a) => JSONBaseValue::Array(a),
+            JsonValue::Object(o) => JsonBaseValue::Object(o),
+            JsonValue::Array(a) => JsonBaseValue::Array(a),
             _ => {
                 return Err(Error::new(
                     ErrorKind::InvalidData,
@@ -104,7 +104,7 @@ impl QJSONDocument {
 
         trace!("{:?}", base);
 
-        Ok(base?)
+        base
     }
 
     /**

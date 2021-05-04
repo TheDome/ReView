@@ -1,13 +1,13 @@
 use std::env::home_dir;
 use std::fs::File;
-use std::io::{BufRead, BufReader, BufWriter};
-use std::path::{Path, PathBuf};
+use std::io::{BufRead, BufReader};
+use std::path::{PathBuf};
 
-use gio::prelude::DataInputStreamExtManual;
+
 use glib::base64_decode;
-use log::{debug, info, trace};
+use log::{debug, trace};
 
-use crate::main;
+
 
 const CONFIG_FOLDER: &str = ".config";
 const CONFIG_FILE_PATH: &str = "rmapi";
@@ -78,20 +78,14 @@ impl Config {
 
                     let line = line.unwrap();
 
-                    match line.split(":").nth(0) {
+                    match line.split(':').next() {
                         Some("devicetoken") => {
-                            self.device_key = match line.split(":").nth(1) {
-                                Some(v) => Some(String::from(v.trim())),
-                                None => None,
-                            };
+                            self.device_key = line.split(':').nth(1).map(|v| String::from(v.trim()));
                         }
 
                         #[cfg(any(feature = "session_from_config", debug_assertions))]
                         Some("usertoken") => {
-                            self.session_key = match line.split(":").nth(1) {
-                                Some(v) => Some(String::from(v.trim())),
-                                None => None,
-                            };
+                            self.session_key = line.split(':').nth(1).map(|v| String::from(v.trim()));
                         }
                         Some(v) => trace!("Failed to load {}", v),
                         _ => {}
@@ -112,7 +106,7 @@ impl Config {
             Some(key) => {
                 let token = String::from(key.as_str());
 
-                let pieces = token.split(".").collect::<Vec<&str>>();
+                let pieces = token.split('.').collect::<Vec<&str>>();
 
                 let data = pieces.get(1);
 

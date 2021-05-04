@@ -1,4 +1,4 @@
-use log::{debug, info};
+use log::{info};
 
 mod application;
 mod qt_json;
