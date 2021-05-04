@@ -77,7 +77,7 @@ impl LiveViewWindow {
             let _ = tx.send(());
         });
 
-        tokio::spawn({
+        tokio::spawn(async move {
             rx.recv();
             socket.join().expect("Couldn't join the socket");
         });
