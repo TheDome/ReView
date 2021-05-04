@@ -1,5 +1,8 @@
-pub const DEVICE_WIDTH: f32 = 1404.0;
-pub const DEVICE_HEIGHT: f32 = 1872.0;
+
+use log::warn;
+
+pub const DEVICE_WIDTH: f64 = 1404.0 ;
+pub const DEVICE_HEIGHT: f64 = 1872.0;
 
 #[derive(Debug, Eq, PartialEq)]
 pub enum PenType {
@@ -36,12 +39,25 @@ impl From<&String> for PenColor {
     }
 }
 
+impl PenColor {
+    pub fn as_rgb(&self) -> (f64, f64, f64) {
+        match self {
+            PenColor::BLACK => (0.0, 0.0, 0.0),
+            PenColor::WHITE => (1.0, 1.0, 1.0),
+            PenColor::GRAY => (0.5, 0.5, 0.5)
+        }
+    }
+}
+
 impl From<&String> for PenType {
     fn from(identifier: &String) -> Self {
         match identifier.as_str() {
             "Pencilv2" => PenType::TiltPencil,
             "SharpPencilv2" => PenType::SharpPencil,
-            _ => PenType::UNKNWON,
+            e => {
+                warn!("Could not identify type {}", e);
+                PenType::UNKNWON
+            },
         }
     }
 }
