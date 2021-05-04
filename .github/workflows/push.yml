@@ -3,7 +3,7 @@ on: push
 name: Push check
 
 concurrency:
-  group: ${{ github.head_ref }}
+  group: push-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
