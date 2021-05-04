@@ -1,5 +1,7 @@
 on: push
 
+name: Push check
+
 jobs:
   test:
     runs-on: ubuntu-latest
