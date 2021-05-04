@@ -6,6 +6,7 @@ This application is intended to show a live version of the Remarkable on your sc
 
 Additionally, this is my first try at Rust with GTK3.
 
-# This Project is not complete yet. 
-The Ability to convert the ReMarkable Byte Format (format/example.bin) into an abstract Rust Representation
-is not complete yet. 
+# Function of this Application
+
+This application is able to use the livesync feature of the ReMarkable Tablet. 
+Currently only new lines will be shown and neither templates nor brushes are supported but I will change this in the future. 
