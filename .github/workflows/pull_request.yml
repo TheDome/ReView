@@ -3,6 +3,10 @@ on:
 
 name: Clippy check
 
+concurrency:
+  group: ${{ github.head_ref }}
+  cancel-in-progress: true
+
 jobs:
   clippy:
     runs-on: ubuntu-20.04
