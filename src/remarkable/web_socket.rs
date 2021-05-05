@@ -1,8 +1,6 @@
 use std::sync::mpsc;
 use std::sync::mpsc::Receiver;
 
-
-
 use log::{debug, error, trace, warn};
 use websocket;
 
@@ -13,11 +11,12 @@ use websocket::websocket_base::result::WebSocketError::Other;
 use websocket::ClientBuilder;
 
 use crate::remarkable::constants::{
-    REMARKABLE_LIVEVIEW_SUBSCRIBER_PATH,
-    REMARKABLE_NOTIFICATION_SOCKET_PATH,
+    REMARKABLE_LIVEVIEW_SUBSCRIBER_PATH, REMARKABLE_NOTIFICATION_SOCKET_PATH,
 };
 use crate::remarkable::web_socket::SocketEvent::LiveSyncStarted;
 use std::thread::JoinHandle;
+use websocket::client::sync::Client;
+use websocket::stream::sync::NetworkStream;
 
 const PROTOCOL: &str = "wss://";
 
@@ -33,7 +32,7 @@ pub enum SocketEvent {
     LiveSyncStarted(String, String),
 }
 
-pub async fn start_socket(base_url: &str, session_token: &str) -> Receiver<SocketEvent> {
+pub fn start_socket(base_url: &str, session_token: &str) -> Receiver<SocketEvent> {
     debug!("Connecting to remarkable socket");
     trace!("Using base: {}", base_url);
     trace!("Token: {}", session_token);

@@ -8,7 +8,7 @@ pub mod application {
     
     use std::env::args;
     use std::sync::mpsc;
-    use std::sync::mpsc::channel;
+    use std::sync::mpsc::{channel, TryRecvError,RecvTimeoutError};
     use std::thread;
     
 
@@ -30,7 +30,8 @@ pub mod application {
     use crate::remarkable::tokens::BaseDomains;
     use crate::remarkable::web_socket::SocketEvent;
     use crate::remarkable::web_socket::SocketEvent::LiveSyncStarted;
-    
+    use std::time::Duration;
+
 
     pub const WINDOWS_STRING: &str = include_str!("gui/Windows.glade");
 
@@ -353,21 +354,26 @@ pub mod application {
 
         let (tx, rx) = mpsc::channel();
 
-        tokio::spawn(async move {
-            let socket = remarkable::web_socket::start_socket(&host, &key).await;
 
+            let socket = remarkable::web_socket::start_socket(&host, &key);
+
+        tokio::spawn(async move {
             loop {
-                match socket.recv() {
+                match socket.recv_timeout(Duration::from_secs(10)) {
                     Ok(ev) => {
                         trace!("Fetched event {:?}", ev);
                         let _ = tx.send(ev);
-                    }
-                    Err(e) => {
-                        show_error(e.to_string());
+                    },Err(RecvTimeoutError::Disconnected) => {
+                        break;
+                    },
+                    Err(RecvTimeoutError::Timeout) => {
+                        break;
                     }
                 };
             }
         });
+
+
 
         rx
     }
@@ -384,7 +390,7 @@ pub mod application {
         std::thread::Builder::new()
             .name("event_listener".into())
             .spawn(move || loop {
-                match rx.recv() {
+                match rx.recv_timeout(Duration::from_secs(10)) {
                     Ok(ev) => {
                         debug!("{:?}", host);
 
@@ -406,8 +412,12 @@ pub mod application {
                             }
                         }
                     }
-                    Err(_) => {}
+                    Err(RecvTimeoutError::Disconnected) => {
+                        break;
+                    },
+                    _=>{}
                 };
+                thread::sleep(Duration::from_millis(500));
             });
     }
 
