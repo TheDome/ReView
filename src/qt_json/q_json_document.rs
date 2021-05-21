@@ -1,15 +1,11 @@
-
 use std::collections::HashMap;
 use std::io::{Cursor, Error, ErrorKind, Read};
 
-
 use byteorder::ReadBytesExt;
-
 use log::{debug, trace, warn};
 use num_traits::FromPrimitive;
 
 use crate::qt_json::elements::{JsonBaseValue, JsonValue, Object};
-
 
 pub struct QJSONDocument {
     pub tag: u32,
@@ -270,6 +266,7 @@ impl QJSONDocument {
                 let encapsulated = value_data.split_at(orig_value as usize).1;
                 Self::load_element(Vec::from(encapsulated))?
             }
+            Some(QTValueType::Bool) => JsonValue::Bool(orig_value != 0),
             Some(QTValueType::Null) => JsonValue::Null,
             _ => JsonValue::Undefined,
         };

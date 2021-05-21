@@ -25,21 +25,6 @@ pub struct Object {
     pub values: HashMap<String, JsonValue>,
 }
 
-impl Object {
-    pub fn from_binary(data: &Vec<u8>) -> Result<Self, Error> {
-        let mut cursor = Cursor::new(&data);
-
-        let size = cursor.read_u32::<Endianess>()?;
-
-        assert_eq!(data.len(), (size + 4) as usize);
-
-        Ok(Object {
-            size,
-            values: HashMap::new(),
-        })
-    }
-}
-
 #[derive(Debug)]
 pub enum JsonBaseValue {
     Object(Object),
