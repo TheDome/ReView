@@ -88,6 +88,11 @@ jobs:
       - uses: actions-rs/cargo@v1
         with:
           command: build
+          args: --verbose
+      - uses: actions/upload-artifact@v2
+        with:
+          name: linux-binary
+          path: target/debug/ReView
   semantic-release:
     runs-on: ubuntu-latest
     timeout-minutes: 10
