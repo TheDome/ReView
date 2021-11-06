@@ -28,6 +28,15 @@ jobs:
             ~/.cargo/git
             target/
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+      - name: Install semantic-release
+        run: |
+          sudo npm install -g \
+            semantic-release@18.0.0 \
+            @semantic-release/git@10.0.0 \
+            @semantic-release/release-notes-generator@10.0.2 \
+            @semantic-release/github@8.0.0 \
+            @semantic-release/exec@6.0.1
+
       - name: Set version
         shell: bash
         run: |
