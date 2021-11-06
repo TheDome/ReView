@@ -14,6 +14,11 @@ jobs:
         with:
           toolchain: stable
           override: true
+      - uses: actions-rs/install@v0.1
+        with:
+          crate: toml-cli
+          version: latest
+          use-tool-cache: true
       - name: Install gtk-dev
         run: sudo apt-get install build-essential libgtk-3-dev
       - uses: actions/cache@v2
@@ -23,6 +28,25 @@ jobs:
             ~/.cargo/git
             target/
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+      - name: Set version
+        shell: bash
+        run: |
+          cat <<EOF > .releaserc.yaml
+          branches: ["${GITHUB_REF#refs/*/}"]
+          tagFormat: '\${version}'
+          dryRun: true
+          ci: true
+          debug: true
+          plugins:
+            - '@semantic-release/commit-analyzer'
+            - [
+                '@semantic-release/exec',
+                {
+                  'verifyReleaseCmd': "toml set Cargo.toml package.version \${nextRelease.version} > Cargo.toml",
+                },
+              ]
+          EOF
+          npx semantic-release --debug
       - uses: actions-rs/cargo@v1
         with:
           command: build
