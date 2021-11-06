@@ -121,8 +121,8 @@ jobs:
             --tag-format \${version} \
             --debug true
         env:
-          GH_TOKEN: ${{ github.token }}
-          GITHUB_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ secrets.SEMANTIC_RELEASE_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.SEMANTIC_RELEASE_TOKEN }}
   auto-merge:
     needs:
       - semantic-release
