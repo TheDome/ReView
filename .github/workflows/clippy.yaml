@@ -10,7 +10,7 @@ on:
 name: Clippy
 
 concurrency:
-  group: ${{ github.pull_request.head.ref || github.ref }}
+  group: ${{ github.event.pull_request.head.ref || github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -19,7 +19,7 @@ jobs:
     steps:
       - uses: actions/checkout@v1
         with:
-          ref: ${{ github.pull_request.head.ref || github.ref }}
+          ref: ${{ github.event.pull_request.head.ref || github.ref }}
       - name: Install gtk-dev
         run: sudo apt-get install build-essential libgtk-3-dev
       - uses: actions-rs/toolchain@v1
