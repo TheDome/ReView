@@ -178,7 +178,7 @@ pub mod application {
                 let exp = d.as_fixed_point_i64(0);
 
                 let date = DateTime::from_unix_utc(exp.unwrap_or(0));
-                let diff = date.difference(&DateTime::new_now_utc());
+                let diff = date.expect("Failed to parse DateTime").difference(&DateTime::new_now_utc().expect("Failed to get current time"));
 
                 debug!("Diff is : {}", diff);
 
