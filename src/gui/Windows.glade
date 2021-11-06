@@ -146,7 +146,7 @@
             <property name="visible">True</property>
             <property name="can-focus">False</property>
             <property name="label" translatable="yes">Please login to your remarkable account. 
-At https://my.remarkable.com/connect/desktop</property>
+At https://my.remarkable.com/device/desktop/connect</property>
             <property name="justify">center</property>
           </object>
           <packing>
