@@ -55,6 +55,8 @@ jobs:
         with:
           toolchain: stable
           override: true
+      - name: Install gtk-dev
+        run: sudo apt-get install build-essential libgtk-3-dev
       - uses: actions/cache@v2
         with:
           path: |
@@ -75,6 +77,8 @@ jobs:
         with:
           toolchain: stable
           override: true
+      - name: Install gtk-dev
+        run: sudo apt-get install build-essential libgtk-3-dev
       - uses: actions/cache@v2
         with:
           path: |
