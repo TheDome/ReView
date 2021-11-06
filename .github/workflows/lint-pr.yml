@@ -10,7 +10,7 @@ on:
       - develop
 
 jobs:
-  main:
+  pr-lint:
     runs-on: ubuntu-latest
     steps:
       # Please look up the latest version from
