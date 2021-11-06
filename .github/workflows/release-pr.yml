@@ -1,0 +1,52 @@
+on:
+  push:
+    branches:
+      - develop
+
+concurrency:
+  cancel-in-progress: true
+  group: "release-pr"
+
+jobs:
+  release-pr:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 2.6 # Not needed with a .ruby-version file
+          bundler-cache: true
+        - name: Create Release PR
+          shell: bash
+          run: |
+            cat <<EOF > .releaserc.yaml
+            branches: ["${GITHUB_REF#refs/*/}"]
+            tagFormat: '\${version}'
+            dryRun: true
+            ci: true
+            debug: true
+            plugins:
+              - '@semantic-release/commit-analyzer'
+              - [
+                  '@semantic-release/exec',
+                  {
+                    'verifyReleaseCmd': "echo \${nextRelease.version} > version.txt",
+                  },
+                ]
+            EOF
+            npx semantic-release --debug
+            cat <<EOF > template.erb
+            Release $(cat version.txt)
+            <% pull_requests.each do |pr| -%>
+            <%=  pr.to_checklist_item %>
+            <% end -%>
+            EOF
+            gem install --no-document git-pr-release
+            git-pr-release --no-fetch --squashed
+          env:
+            GIT_PR_RELEASE_BRANCH_PRODUCTION: main
+            GIT_PR_RELEASE_BRANCH_STAGING: ${{ github.event.repository.default_branch }}
+            GIT_PR_RELEASE_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            GIT_PR_RELEASE_LABELS: release
+            GIT_PR_RELEASE_MENTION: author
+            GIT_PR_RELEASE_TEMPLATE: template.erb
+            DEBUG: "true"
