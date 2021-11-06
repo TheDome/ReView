@@ -46,3 +46,4 @@ jobs:
           upload_url: ${{ github.event.release.upload_url }}
           asset_path: ./target/release/ReView
           asset_name: ReView-linux-amd64
+          asset_content_type: application/octet-stream
