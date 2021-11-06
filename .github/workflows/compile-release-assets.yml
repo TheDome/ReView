@@ -40,7 +40,7 @@ jobs:
             - [
                 '@semantic-release/exec',
                 {
-                  'verifyReleaseCmd': "toml set Cargo.toml package.version \${nextRelease.version}",
+                  'verifyReleaseCmd': "toml set Cargo.toml package.version \${nextRelease.version} > Cargo.toml",
                 },
               ]
           EOF
