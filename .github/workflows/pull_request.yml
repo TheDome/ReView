@@ -78,6 +78,11 @@ jobs:
         with:
           toolchain: stable
           override: true
+      - uses: actions-rs/install@v0.1
+        with:
+          crate: toml-cli
+          version: latest
+          use-tool-cache: true
       - name: Install gtk-dev
         run: sudo apt-get install build-essential libgtk-3-dev
       - uses: actions/cache@v2
@@ -87,9 +92,11 @@ jobs:
             ~/.cargo/git
             target/
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+      - run: toml set Cargo.toml package.version 0.1.1
       - uses: actions-rs/cargo@v1
         with:
           command: build
+          args: --verbose
   semantic-release:
     runs-on: ubuntu-latest
     timeout-minutes: 10
