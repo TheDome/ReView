@@ -1,5 +1,5 @@
 on:
-  pull_request_target:
+  pull_request:
   push:
     branches:
       - main
@@ -17,22 +17,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
-      - uses: actions-rs/toolchain@v1
+      - uses: actions-rs/install@v0.1
         with:
-          toolchain: stable
-          override: true
-          components: rustfmt, clippy
-      - uses: actions/cache@v2
+          crate: cargo-audit
+          version: latest
+          use-tool-cache: true
+      - uses: actions-rs/cargo@v1
         with:
-          path: |
-            ~/.cargo/registry
-            ~/.cargo/git
-            target
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-      - uses: actions-rs/cargo-audit@v1
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          args: --all-features
+          command: audit
   check:
     runs-on: ubuntu-latest
     steps:
