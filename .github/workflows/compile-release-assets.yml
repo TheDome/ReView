@@ -31,7 +31,8 @@ jobs:
       - name: Set version
         shell: bash
         run: |
-          toml set Cargo.toml package.version ${{ github.event.release.tag_name }} > Cargo.toml
+          toml set Cargo.toml package.version ${{ github.event.release.tag_name }} > Cargo.toml.new
+          mv Cargo.toml.new Cargo.toml
       - uses: actions-rs/cargo@v1
         with:
           command: build
