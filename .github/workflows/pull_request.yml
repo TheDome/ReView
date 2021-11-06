@@ -112,13 +112,12 @@ jobs:
             semantic-release@18.0.0 \
             @semantic-release/git@10.0.0 \
             @semantic-release/release-notes-generator@10.0.2 \
-            @semantic-release/github@8.0.0 \
-            @semantic-release/changelog@6.0.0
+            @semantic-release/github@8.0.0
       - shell: bash
         run: |
           semantic-release \
             --branches main \
-            --plugins "@semantic-release/commit-analyzer,@semantic-release/release-notes-generator,@semantic-release/changelog,@semantic-release/git,@semantic-release/github" \
+            --plugins "@semantic-release/commit-analyzer,@semantic-release/release-notes-generator,@semantic-release/git,@semantic-release/github" \
             --tag-format \${version} \
             --debug true
         env:
