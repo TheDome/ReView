@@ -10,7 +10,7 @@ on:
 name: Clippy
 
 concurrency:
-  group: ${{ github.event.pull_request.head.ref || github.ref }}
+  group: clippy-${{ github.event.pull_request.head.ref || github.ref }}
   cancel-in-progress: true
 
 jobs:
