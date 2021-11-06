@@ -76,11 +76,6 @@ jobs:
         with:
           toolchain: stable
           override: true
-      - uses: actions-rs/install@v0.1
-        with:
-          crate: toml-cli
-          version: latest
-          use-tool-cache: true
       - name: Install gtk-dev
         run: sudo apt-get install build-essential libgtk-3-dev
       - uses: actions/cache@v2
