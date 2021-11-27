@@ -2,10 +2,9 @@ use gio::prelude::*;
 use gio::{Menu, MenuItem};
 use gtk::prelude::*;
 use gtk::AboutDialogExt;
-
 use log::trace;
 
-use crate::application::application_config::APPLICATION_VERSION;
+use crate::application::application_config::{APPLICATION_VERSION, MAIN_WINDOW_NAME};
 
 pub fn build_menu_bar(builder: &gtk::Builder) -> Menu {
     let menu_bar = Menu::new();
@@ -48,4 +47,24 @@ fn add_actions(builder: &gtk::Builder) {
     });
 
     about_action.set_enabled(true);
+}
+
+pub fn build_app_window() -> gtk::ApplicationWindow {
+    let window_str = include_str!("Windows.glade");
+    let builder = gtk::Builder::from_string(window_str);
+
+    let window: gtk::ApplicationWindow = builder
+        .get_object("mainWindow")
+        .expect("Could not find main window");
+
+    window.set_title(MAIN_WINDOW_NAME);
+    window.set_default_size(800, 600);
+    window.show_all();
+
+    window.connect_delete_event(|_, _| {
+        gtk::main_quit();
+        Inhibit(false)
+    });
+
+    window
 }

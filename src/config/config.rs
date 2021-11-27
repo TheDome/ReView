@@ -1,4 +1,3 @@
-use std::env::home_dir;
 use std::fs::File;
 use std::io::{BufRead, BufReader, Write};
 use std::path::PathBuf;
@@ -25,7 +24,6 @@ impl Config {
     pub fn new() -> Self {
         Default::default()
     }
-
 
     pub fn load(&mut self, data: &str) -> Result<(), String> {
         debug!("Loading config");
@@ -78,10 +76,9 @@ impl Config {
         None
     }
 
-    pub fn create_config_content(&self) -> Option<&str> {
+    pub fn create_config_content(&self) -> Option<String> {
         trace!("usertoken: {:?}", self.session_key);
         trace!("devicetoken: {:?}", self.device_key);
-
 
         let mut config_file = String::new();
 
@@ -101,8 +98,7 @@ impl Config {
             return None;
         }
 
-
-        Some(config_file.as_str())
+        Some(config_file)
     }
 }
 
@@ -118,9 +114,13 @@ mod tests {
         let mut config = Config::new();
 
         config.device_key = Some("device_key".to_string());
+        config.session_key = Some("session_key".into());
 
         let config_file = config.create_config_content();
 
-        assert_eq!(config_file.unwrap(), "device_key");
+        assert_eq!(
+            config_file.unwrap(),
+            "usertoken: session_key\ndevicetoken: device_key\n"
+        );
     }
 }

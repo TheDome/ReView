@@ -1,12 +1,8 @@
-use log::{info};
+use log::info;
 
 mod application;
-mod remarkable;
 mod config;
-
-#[macro_use]
-extern crate num_derive;
-extern crate num_traits;
+mod remarkable;
 
 #[tokio::main(flavor = "multi_thread")]
 async fn main() {

@@ -14,30 +14,32 @@ pub const CONFIG_PATH: [&str; 2] = [CONFIG_FILE_PATH, CONFIG_FILE_NAME];
 
 /// Resolves the config path relative
 /// by the home directory.
-pub fn resolve_config_path<'a>() -> Result<&'a Path, String> {
+pub fn resolve_config_path() -> Result<PathBuf, String> {
     let dirs = BaseDirs::new();
 
     if let Some(dir) = dirs {
-        let mut home_path = PathBuf::from(dir.config_dir());
-        let config_path: PathBuf = CONFIG_PATH.iter().collect();
-        home_path.push(config_path.as_path());
+        let home_path = dir.config_dir();
+        let config_path = CONFIG_PATH;
 
-        return Ok(home_path.as_path());
+        let path = Path::new(home_path).join(config_path.iter().collect::<PathBuf>());
+
+        return Ok(path);
     }
 
     Err("Could not locate home path".into())
 }
 
 /// Writes a Config struct to a file.
-pub fn write_config(conf: &Config, path: &Path) -> Result<(), String> {
-    #[cfg(not(debug_assertions))]
-        {
-            let mut file = File::create(path)?;
+pub fn write_config(_conf: &Config, _path: &Path) -> Result<(), String> {
+    #[cfg(not(test))]
+    {
+        let mut file = File::create(_path).map_err(|e| e.to_string())?;
 
-            if let Some(content) = conf.create_config_content() {
-                file.write_all(content.as_bytes())?;
-            }
+        if let Some(content) = _conf.create_config_content() {
+            file.write_all(content.as_bytes())
+                .map_err(|e| e.to_string())?;
         }
+    }
     Ok(())
 }
 

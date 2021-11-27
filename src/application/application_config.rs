@@ -1,4 +1,4 @@
-pub const MAIN_WINDOW_NAME: &str = "Test";
+pub const MAIN_WINDOW_NAME: &str = concat!(env!("CARGO_PKG_NAME"), env!("CARGO_PKG_VERSION"));
 
 pub const APPLICATION_IDENTIFIER: &str = "com.github.thedome.review";
 

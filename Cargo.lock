@@ -6,7 +6,6 @@ version = 3
 name = "ReView"
 version = "0.0.0"
 dependencies = [
- "byteorder",
  "cairo-rs",
  "directories",
  "env_logger",
@@ -17,8 +16,6 @@ dependencies = [
  "json",
  "log 0.4.14",
  "num",
- "num-derive",
- "num-traits",
  "qt-json-rs",
  "reqwest",
  "tokio",
