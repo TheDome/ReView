@@ -1,8 +1,8 @@
 use log::{info};
 
 mod application;
-mod qt_json;
 mod remarkable;
+mod config;
 
 #[macro_use]
 extern crate num_derive;
@@ -18,5 +18,5 @@ async fn main() {
         env!("CARGO_PKG_VERSION")
     );
 
-    application::application::run();
+    application::run();
 }
