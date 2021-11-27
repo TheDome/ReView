@@ -1,6 +1,3 @@
-
-
-
 #[cfg(other)]
 pub const REMARKABLE_DEVICE_DESCRIPTION: &str = "browser-chrome";
 
@@ -17,7 +14,8 @@ const AUTH0_USER: &str = "auth0|5ff43c03c9f7b3013eeec9a7";
 
 pub const PROTOCOL: &str = "https://";
 
-pub const REMARKABLE_SESSION_BASE_API: &str = "webapp-production-dot-remarkable-production.appspot.com";
+pub const REMARKABLE_SESSION_BASE_API: &str =
+    "webapp-production-dot-remarkable-production.appspot.com";
 pub const REMARKABLE_SESSION_TOKEN_NEW: &str = "/token/json/2/user/new";
 pub const REMARKABLE_SESSION_TOKEN_NEW_DEVICE: &str = "/token/json/2/device/new";
 

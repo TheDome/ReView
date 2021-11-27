@@ -1,7 +1,6 @@
-
 use log::warn;
 
-pub const DEVICE_WIDTH: f64 = 1404.0 ;
+pub const DEVICE_WIDTH: f64 = 1404.0;
 pub const DEVICE_HEIGHT: f64 = 1872.0;
 
 #[derive(Debug, Eq, PartialEq)]
@@ -44,7 +43,7 @@ impl PenColor {
         match self {
             PenColor::BLACK => (0.0, 0.0, 0.0),
             PenColor::WHITE => (1.0, 1.0, 1.0),
-            PenColor::GRAY => (0.5, 0.5, 0.5)
+            PenColor::GRAY => (0.5, 0.5, 0.5),
         }
     }
 }
@@ -57,7 +56,7 @@ impl From<&String> for PenType {
             e => {
                 warn!("Could not identify type {}", e);
                 PenType::UNKNWON
-            },
+            }
         }
     }
 }
