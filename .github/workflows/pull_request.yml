@@ -17,14 +17,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2.4.0
-      - uses: actions-rs/install@v0.1
+      - name: Security audit
+        uses: actions-rs/audit-check@v1
         with:
-          crate: cargo-audit
-          version: latest
-          use-tool-cache: true
-      - uses: actions-rs/cargo@v1
-        with:
-          command: audit
+          token: ${{ secrets.GITHUB_TOKEN }}
   check:
     runs-on: ubuntu-latest
     steps:
