@@ -25,6 +25,8 @@ byteorder = "1.4.3"
 num = "0.4"
 num-traits = "0.2"
 num-derive = "0.3"
+qt-json-rs = "1.0.1"
+directories = "4.0.1"
 
 [dependencies.tokio]
 version = "1.14.0"
