@@ -118,8 +118,6 @@ mod tests {
 
     #[test]
     fn test_example() {
-        env_logger::try_init();
-
         info!("Starting test");
 
         let data = include_bytes!("example.bin");
@@ -151,8 +149,6 @@ mod tests {
 
     #[test]
     fn test_example_1() {
-        env_logger::try_init();
-
         let data = include_bytes!("example1.bin");
 
         let line = parse_binary_live_lines(data.to_vec());

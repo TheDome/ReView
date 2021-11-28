@@ -15,8 +15,6 @@ use crate::remarkable::constants::{
 };
 use crate::remarkable::web_socket::SocketEvent::LiveSyncStarted;
 use std::thread::JoinHandle;
-use websocket::client::sync::Client;
-use websocket::stream::sync::NetworkStream;
 
 const PROTOCOL: &str = "wss://";
 

@@ -1,52 +1,126 @@
-use gio::prelude::*;
-use gio::{Menu, MenuItem};
+use gdk::keys::constants::dead_belowbreve;
+use gio::Menu;
 use gtk::prelude::*;
 use gtk::AboutDialogExt;
-use log::trace;
+use gtk::{HeaderBar, Label, MenuBar, MenuItem};
+use log::{debug, info, trace};
 
-use crate::application::application_config::{APPLICATION_VERSION, MAIN_WINDOW_NAME};
+use crate::application::model::controller::AppController;
+use crate::application::view::{APPLICATION_VERSION, MAIN_WINDOW_NAME};
 
-pub fn build_menu_bar(builder: &gtk::Builder) -> Menu {
-    let menu_bar = Menu::new();
-
-    let app_emenu = MenuItem::new(Some("File"), None);
-    let file_menu = Menu::new();
-
-    app_emenu.set_submenu(Some(&file_menu));
-
-    let about_button = MenuItem::new(Some("About"), Some("_about"));
-
-    menu_bar.append_item(&app_emenu);
-    menu_bar.append_item(&about_button);
-
-    add_actions(builder);
-
-    menu_bar
+#[derive(Debug, Clone)]
+pub struct AppView {
+    window: gtk::ApplicationWindow,
+    about_dialog: gtk::AboutDialog,
+    about_menu: MenuItem,
+    app_menu: Menu,
+    menu_bar: Menu,
 }
 
-fn add_actions(builder: &gtk::Builder) {
-    // Insert the version since we extract it while building
-    trace!("Creating about dialog");
-    let about_dialog: gtk::AboutDialog = builder
-        .get_object("mainAboutDialog")
-        .expect("Could not find about dialog");
+impl AppView {
+    pub fn new() -> Self {
+        let app_menu = Menu::new();
+        let menu_bar = Menu::new();
+
+        let about_menu = build_about_menu();
+        let about_dialog = build_about_dialog();
+        let window = build_app_window();
+
+        let more_menu = Menu::new();
+
+        more_menu.append(Some("About"), Some("app.about"));
+
+        app_menu.append(Some("Quit"), Some("app.quit"));
+        menu_bar.append_submenu(Some("?"), &more_menu);
+
+        AppView {
+            window,
+            about_dialog,
+            about_menu,
+            app_menu,
+            menu_bar,
+        }
+    }
+
+    pub fn connect_controller(&self, controller: &AppController) {
+        self.about_menu.connect_activate(move |menu| {
+            info!("About menu clicked");
+        });
+    }
+
+    pub fn show_window(&self) {
+        self.window.show_all();
+    }
+
+    pub fn get_main_window(&self) -> &gtk::ApplicationWindow {
+        &self.window
+    }
+
+    pub fn get_menus(&self) -> (&Menu, &Menu) {
+        (&self.app_menu, &self.menu_bar)
+    }
+
+    pub fn connect_application(&self, app: &gtk::Application) {
+        debug!("Connecting Application");
+        self.window.set_application(Some(app));
+    }
+
+    pub fn connect_actions(&self) -> Vec<gio::SimpleAction> {
+        debug!("Connecting Actions");
+
+        let window = self.window.clone();
+
+        let about = gio::SimpleAction::new("about", None);
+        about.connect_activate(|_, _| {
+            debug!("About clicked");
+            let p = build_about_dialog();
+            p.run();
+            p.close();
+        });
+
+        let quit = gio::SimpleAction::new("quit", None);
+        let app_window = self.window.clone();
+        quit.connect_activate(move |_, _| {
+            debug!("Quit clicked");
+            window.close();
+        });
+
+        vec![about, quit]
+    }
+}
+
+fn build_about_menu() -> MenuItem {
+    let about_menu = MenuItem::new();
+    about_menu.set_label("About");
+
+    about_menu
+}
+
+fn build_about_dialog() -> gtk::AboutDialog {
+    let about_dialog = gtk::AboutDialog::new();
+
+    about_dialog.set_program_name(MAIN_WINDOW_NAME);
     about_dialog.set_version(Some(APPLICATION_VERSION));
+    about_dialog.set_copyright(Some("Copyright © 2021"));
+    about_dialog.set_comments(Some("A simple GTK+ application."));
+    about_dialog.set_license_type(gtk::License::Bsd);
+    about_dialog.set_website(Some(env!("CARGO_PKG_REPOSITORY")));
+    about_dialog.set_website_label(Some("GitHub"));
     about_dialog.set_authors(
         env!("CARGO_PKG_AUTHORS")
-            .split(';')
+            .split(";")
             .collect::<Vec<&str>>()
             .as_slice(),
     );
     about_dialog.set_logo(None);
 
-    let about_action = gio::SimpleAction::new("_about", None);
+    about_dialog.set_modal(false);
+    about_dialog.set_destroy_with_parent(true);
+    about_dialog.set_position(gtk::WindowPosition::CenterAlways);
+    about_dialog.set_icon_name(Some("gtk-about"));
+    about_dialog.set_wrap_license(true);
 
-    about_action.connect_change_state(move |_, _| {
-        about_dialog.run();
-        about_dialog.hide();
-    });
-
-    about_action.set_enabled(true);
+    about_dialog
 }
 
 pub fn build_app_window() -> gtk::ApplicationWindow {
@@ -59,12 +133,7 @@ pub fn build_app_window() -> gtk::ApplicationWindow {
 
     window.set_title(MAIN_WINDOW_NAME);
     window.set_default_size(800, 600);
-    window.show_all();
-
-    window.connect_delete_event(|_, _| {
-        gtk::main_quit();
-        Inhibit(false)
-    });
+    window.set_position(gtk::WindowPosition::Center);
 
     window
 }

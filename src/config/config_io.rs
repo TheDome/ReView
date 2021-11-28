@@ -1,4 +1,3 @@
-use std::env::home_dir;
 use std::fs;
 use std::fs::File;
 use std::io::Write;
@@ -47,7 +46,7 @@ pub fn write_config(_conf: &Config, _path: &Path) -> Result<(), String> {
 pub fn load_config_from_file(path: &str) -> Result<Config, String> {
     let file = fs::read_to_string(path).map_err(|e| e.to_string())?;
 
-    let mut config = Config::new();
+    let mut config = Config::default();
     config.load(file.as_str()).map_err(|e| e.to_string())?;
 
     Ok(config)

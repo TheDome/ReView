@@ -6,6 +6,7 @@ version = 3
 name = "ReView"
 version = "0.0.0"
 dependencies = [
+ "base64 0.13.0",
  "cairo-rs",
  "directories",
  "env_logger",

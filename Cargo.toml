@@ -2,7 +2,7 @@
 name = "ReView"
 version = "0.0.0"
 authors = ["Dominic Heun <dominic.heun@gmx.net>"]
-edition = "2018"
+edition = "2021"
 build = "build.rs"
 repository = "https://github.com/thedome/review"
 description = "A simple program to use the remarkable live view feature"
@@ -21,6 +21,7 @@ cairo-rs = { version = "^0", features = ["v1_16", "pdf"] }
 gdk = "0.13.2"
 qt-json-rs = "1.0.1"
 directories = "4.0.1"
+base64 = "0.13.0"
 
 [dependencies.tokio]
 version = "1.14.0"
