@@ -17,7 +17,7 @@ dependencies = [
  "json",
  "log 0.4.14",
  "num",
- "qt-json-rs",
+ "qt-json",
  "reqwest",
  "tokio",
  "uuid",
@@ -1455,13 +1455,12 @@ dependencies = [
 ]
 
 [[package]]
-name = "qt-json-rs"
-version = "1.0.1"
+name = "qt-json"
+version = "1.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bde3b1c599158ddcdc9a12f32e770b0acf2b5a4075191febd8b931e93216158f"
+checksum = "48fe06272e6ea265f84515e49b051cf9edcd89056aea25c52cc86de8c2b373e5"
 dependencies = [
  "byteorder",
- "env_logger",
  "log 0.4.14",
  "num",
  "num-derive",

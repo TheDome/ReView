@@ -1,8 +1,8 @@
 use std::io::{Error, ErrorKind};
 
 use log::{debug, trace, warn};
-use qt_json_rs::elements::{JsonBaseValue, JsonValue};
-use qt_json_rs::QJSONDocument;
+use qt_json::elements::{JsonBaseValue, JsonValue};
+use qt_json::QJSONDocument;
 
 use crate::remarkable::format::data::PenColor::BLACK;
 use crate::remarkable::format::data::PenType::TiltPencil;
