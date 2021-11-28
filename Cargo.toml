@@ -8,6 +8,10 @@ repository = "https://github.com/thedome/review"
 description = "A simple program to use the remarkable live view feature"
 readme = "README.md"
 
+[[bin]]
+name = "ReView"
+path = "src/main.rs"
+
 [features]
 session_from_config = []
 
@@ -19,7 +23,7 @@ uuid = { version = "0.8.2", features = ["v4"] }
 glib = "0.14.8"
 cairo-rs = { version = "^0", features = ["v1_16", "pdf"] }
 gdk = "0.13.2"
-qt-json-rs = "1.0.1"
+qt-json = "1.0.2"
 directories = "4.0.1"
 base64 = "0.13.0"
 
