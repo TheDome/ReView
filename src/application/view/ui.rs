@@ -1,4 +1,3 @@
-use gdk::keys::constants::dead_belowbreve;
 use gio::Menu;
 use gtk::prelude::*;
 use gtk::AboutDialogExt;
@@ -42,12 +41,6 @@ impl AppView {
         }
     }
 
-    pub fn connect_controller(&self, controller: &AppController) {
-        self.about_menu.connect_activate(move |menu| {
-            info!("About menu clicked");
-        });
-    }
-
     pub fn show_window(&self) {
         self.window.show_all();
     }
@@ -64,29 +57,6 @@ impl AppView {
         debug!("Connecting Application");
         self.window.set_application(Some(app));
     }
-
-    pub fn connect_actions(&self) -> Vec<gio::SimpleAction> {
-        debug!("Connecting Actions");
-
-        let window = self.window.clone();
-
-        let about = gio::SimpleAction::new("about", None);
-        about.connect_activate(|_, _| {
-            debug!("About clicked");
-            let p = build_about_dialog();
-            p.run();
-            p.close();
-        });
-
-        let quit = gio::SimpleAction::new("quit", None);
-        let app_window = self.window.clone();
-        quit.connect_activate(move |_, _| {
-            debug!("Quit clicked");
-            window.close();
-        });
-
-        vec![about, quit]
-    }
 }
 
 fn build_about_menu() -> MenuItem {
@@ -96,13 +66,13 @@ fn build_about_menu() -> MenuItem {
     about_menu
 }
 
-fn build_about_dialog() -> gtk::AboutDialog {
+pub fn build_about_dialog() -> gtk::AboutDialog {
     let about_dialog = gtk::AboutDialog::new();
 
     about_dialog.set_program_name(MAIN_WINDOW_NAME);
     about_dialog.set_version(Some(APPLICATION_VERSION));
     about_dialog.set_copyright(Some("Copyright © 2021"));
-    about_dialog.set_comments(Some("A simple GTK+ application."));
+    about_dialog.set_comments(Some(env!("CARGO_PKG_DESCRIPTION")));
     about_dialog.set_license_type(gtk::License::Bsd);
     about_dialog.set_website(Some(env!("CARGO_PKG_REPOSITORY")));
     about_dialog.set_website_label(Some("GitHub"));
