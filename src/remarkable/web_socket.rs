@@ -1,12 +1,11 @@
 use std::sync::mpsc;
 use std::sync::mpsc::Receiver;
+use std::thread::JoinHandle;
 
 use log::{debug, error, trace, warn};
 use websocket;
-
 use websocket::header::{Authorization, Bearer, Headers};
 use websocket::message::OwnedMessage::{Binary, Text};
-
 use websocket::websocket_base::result::WebSocketError::Other;
 use websocket::ClientBuilder;
 
@@ -14,7 +13,6 @@ use crate::remarkable::constants::{
     REMARKABLE_LIVEVIEW_SUBSCRIBER_PATH, REMARKABLE_NOTIFICATION_SOCKET_PATH,
 };
 use crate::remarkable::web_socket::SocketEvent::LiveSyncStarted;
-use std::thread::JoinHandle;
 
 const PROTOCOL: &str = "wss://";
 

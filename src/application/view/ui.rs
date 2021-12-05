@@ -4,7 +4,7 @@ use gtk::AboutDialogExt;
 use gtk::{HeaderBar, Label, MenuBar, MenuItem};
 use log::{debug, info, trace};
 
-use crate::application::model::controller::AppController;
+use crate::application::model::searching_controller::AppController;
 use crate::application::view::{APPLICATION_VERSION, MAIN_WINDOW_NAME};
 
 #[derive(Debug, Clone)]

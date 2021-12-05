@@ -29,9 +29,9 @@ pub fn run() {
         let config = Config::default();
 
         let app_view = view::ui::AppView::new();
-        let app_model = model::app_model::AppModel::new(config);
+        let app_model = model::searching_model::AppModel::new(config);
 
-        let app_controller = model::controller::AppController::new(app_model, app_view);
+        let app_controller = model::searching_controller::AppController::new(app_model, app_view);
 
         debug!("Running AppController");
         app_controller.connect_application(app);

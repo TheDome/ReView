@@ -1,11 +1,10 @@
-use std::f64::consts::PI;
-
 use cairo::Context;
 use cairo::PdfSurface;
 use glib::Continue;
 use gtk::{Inhibit, WidgetExt};
 use gtk::prelude::*;
 use log::{debug, trace, warn};
+use std::f64::consts::PI;
 
 use crate::application::application::WINDOWS_STRING;
 use crate::remarkable::format::data::{DEVICE_HEIGHT, DEVICE_WIDTH};

@@ -1,7 +1,6 @@
-use std::borrow::Borrow;
-
 use gtk::targets_include_rich_text;
 use log::{debug, info, trace};
+use std::borrow::Borrow;
 
 use crate::remarkable::constants::{
     PROTOCOL, REMARKABLE_STORAGE_DISCOVERY_PATH, REMARKABLE_STORAGE_PATH,

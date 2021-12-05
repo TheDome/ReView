@@ -2,7 +2,6 @@ use std::borrow::Borrow;
 use std::collections::HashMap;
 
 use log::{debug, trace, warn};
-
 use reqwest::{Client, Response, StatusCode};
 use uuid::Uuid;
 
