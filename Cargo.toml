@@ -3,6 +3,7 @@ name = "ReView"
 version = "0.0.0"
 authors = ["Dominic Heun <dominic.heun@gmx.net>"]
 edition = "2021"
+license = "Apache-2.0"
 build = "build.rs"
 repository = "https://github.com/thedome/review"
 description = "A simple program to use the remarkable live view feature"

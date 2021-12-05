@@ -73,7 +73,8 @@ pub fn build_about_dialog() -> gtk::AboutDialog {
     about_dialog.set_version(Some(APPLICATION_VERSION));
     about_dialog.set_copyright(Some("Copyright © 2021"));
     about_dialog.set_comments(Some(env!("CARGO_PKG_DESCRIPTION")));
-    about_dialog.set_license_type(gtk::License::Bsd);
+    about_dialog.set_license_type(gtk::License::Custom);
+    about_dialog.set_license(Some(include_str!("../../../LICENSE")));
     about_dialog.set_website(Some(env!("CARGO_PKG_REPOSITORY")));
     about_dialog.set_website_label(Some("GitHub"));
     about_dialog.set_authors(
