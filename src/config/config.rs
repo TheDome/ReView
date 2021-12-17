@@ -4,6 +4,8 @@ use base64::decode;
 use json::parse;
 use log::{debug, trace};
 
+use crate::config::{Configure, Expirable, Identifiable};
+
 #[derive(Debug)]
 pub struct Config {
     pub device_key: Option<String>,
@@ -19,19 +21,21 @@ impl Default for Config {
     }
 }
 
-impl Config {
-    pub fn load(&mut self, data: &str) -> Result<(), String> {
+impl Configure for Config {
+    fn deserialize(data: &str) -> Result<Self, String> {
         debug!("Loading config");
+
+        let mut config = Config::default();
 
         for line in data.split("\n") {
             match line.split(':').next() {
                 Some("devicetoken") => {
-                    self.device_key = line.split(':').nth(1).map(|v| String::from(v.trim()));
+                    config.device_key = line.split(':').nth(1).map(|v| String::from(v.trim()));
                 }
 
                 #[cfg(any(feature = "session_from_config", debug_assertions))]
                 Some("usertoken") => {
-                    self.session_key = line.split(':').nth(1).map(|v| String::from(v.trim()));
+                    config.session_key = line.split(':').nth(1).map(|v| String::from(v.trim()));
                 }
                 Some(v) => debug!("Ignoring {}", v),
                 _ => {}
@@ -40,30 +44,50 @@ impl Config {
 
         debug!("Loaded config is: {:?}", self);
 
-        Ok(())
+        Ok(config)
     }
 
+
+    fn serialize(&self) -> Result<String, String> {
+        trace!("usertoken: {:?}", self.session_key);
+        trace!("devicetoken: {:?}", self.device_key);
+
+        let mut config_file = String::new();
+
+        if let Some(key) = &self.session_key {
+            config_file.push_str("usertoken: ");
+            config_file.push_str(key.as_str());
+            config_file.push_str("\n");
+        } else {
+            return Err(String::from("No session key found"));
+        }
+
+        if let Some(key) = &self.device_key {
+            config_file.push_str("devicetoken: ");
+            config_file.push_str(key.as_str());
+            config_file.push_str("\n");
+        } else {
+            return Err(String::from("No device key found"));
+        }
+
+        Ok(config_file)
+    }
+}
+
+impl Identifiable for Config {
     /// Extract the auth0 id from the user session token.
     /// Will return None of not token can be found or the token is
     /// invalid
-    pub fn auth0_id(&self) -> Option<String> {
+    fn get_session_id(&self) -> Result<String, String> {
         if let Some(key) = &self.session_key {
             debug!("Extracting auth0 id from session key");
             trace!("Session key is: {}", key);
             if let Some(main_part) = key.split(".").collect::<Vec<&str>>().get(1) {
-                let decoded = decode(main_part);
+                let decoded = decode(main_part)?;
 
-                if let Err(e) = decoded {
-                    debug!("Failed to decode session token: {}", e);
-                    return None;
-                }
 
-                let user_data = String::from_utf8(decoded.unwrap());
+                let user_data = String::from_utf8(decoded)?;
 
-                if let Err(e) = user_data {
-                    debug!("Failed to decode user data: {}", e);
-                    return None;
-                }
 
                 trace!("User data is: {}", user_data.as_ref().unwrap());
 
@@ -76,53 +100,29 @@ impl Config {
                     let profile = &profile["UserID"];
 
                     if profile.to_string() == "null" {
-                        return None;
+                        return Err(String::from("No user id found"));
                     }
 
                     debug!("Using profile: {}", profile);
-                    Some(profile.to_string())
+                    Ok(profile.to_string())
                 } else {
                     debug!(
                         "Failed to parse user data: {} -> {:?}",
                         object.unwrap_err(),
                         user_data.as_ref().unwrap()
                     );
-                    None
+                    return Err(String::from("Failed to parse user data"));
                 };
             }
             debug!("Failed to extract main part");
         }
 
-        None
+        Err(String::from("No session key found"))
     }
+}
 
-    pub fn create_config_content(&self) -> Option<String> {
-        trace!("usertoken: {:?}", self.session_key);
-        trace!("devicetoken: {:?}", self.device_key);
-
-        let mut config_file = String::new();
-
-        if let Some(key) = &self.session_key {
-            config_file.push_str("usertoken: ");
-            config_file.push_str(key.as_str());
-            config_file.push_str("\n");
-        } else {
-            return None;
-        }
-
-        if let Some(key) = &self.device_key {
-            config_file.push_str("devicetoken: ");
-            config_file.push_str(key.as_str());
-            config_file.push_str("\n");
-        } else {
-            return None;
-        }
-
-        Some(config_file)
-    }
-
-    /// Determines the remeining time for a JWT to be valid
-    pub fn decode_expiry(token: &str) -> Duration {
+impl Expirable for Config {
+    fn get_expiry(&self) -> Result<Duration, String> {
         let token = String::from(token);
         let token = token.split(".").collect::<Vec<&str>>();
         let main_part = token.get(1);
@@ -131,7 +131,7 @@ impl Config {
             Some(v) => v,
             None => {
                 debug!("Failed to extract main part from token");
-                return Duration::from_secs(0);
+                return Err(String::from("Failed to extract main part from token"));
             }
         };
 
@@ -141,7 +141,7 @@ impl Config {
             Ok(v) => v,
             Err(e) => {
                 debug!("Failed to decode token: {}", e);
-                return Duration::from_secs(0);
+                return Err(String::from("Failed to decode token"));
             }
         };
 
@@ -154,10 +154,10 @@ impl Config {
             let exp = now.checked_add(Duration::from_secs(exp));
             let exp = exp.unwrap();
             let exp = exp.duration_since(UNIX_EPOCH).unwrap();
-            return exp;
+            return Ok(exp);
         }
 
-        Duration::from_secs(0)
+        Err(String::from("Failed to parse token"))
     }
 }
 
