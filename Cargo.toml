@@ -33,7 +33,7 @@ version = "0.16.0"
 features = ["native-tls"]
 
 [dependencies.tokio]
-version = "1.14.0"
+version = "1.15.0"
 features = ["macros", "rt-multi-thread"]
 
 [dependencies.gtk]
@@ -49,7 +49,7 @@ version = "0.4.14"
 features = ["max_level_trace", "release_max_level_warn"]
 
 [dependencies.reqwest]
-version = "0.11.6"
+version = "0.11.7"
 features = ["default-tls", "json"]
 
 [dev-dependencies]
