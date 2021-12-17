@@ -1,5 +1,5 @@
+pub mod app_view;
 pub mod error;
-pub mod ui;
 
 /// The name of the app
 pub const MAIN_WINDOW_NAME: &str = concat!(env!("CARGO_PKG_NAME"));

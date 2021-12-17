@@ -14,8 +14,8 @@ pub struct APIConnection<'a> {
 }
 
 /**
-* transforms a remalable internal ID into a string presentable to the user
-*/
+ * transforms a remalable internal ID into a string presentable to the user
+ */
 pub async fn info_for_item(
     storage_url: &str,
     user_token: &str,

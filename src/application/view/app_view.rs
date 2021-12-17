@@ -4,7 +4,7 @@ use gtk::AboutDialogExt;
 use gtk::{HeaderBar, Label, MenuBar, MenuItem};
 use log::{debug, info, trace};
 
-use crate::application::model::searching_controller::AppController;
+use crate::application::model::app_controller::AppController;
 use crate::application::view::{APPLICATION_VERSION, MAIN_WINDOW_NAME};
 
 #[derive(Debug, Clone)]
@@ -56,6 +56,18 @@ impl AppView {
     pub fn connect_application(&self, app: &gtk::Application) {
         debug!("Connecting Application");
         self.window.set_application(Some(app));
+    }
+
+    pub fn show_login_required(&self) {
+        debug!("Login required - Displaying");
+
+        let login_required_dialog = gtk::MessageDialog::new(
+            Some(&self.window),
+            gtk::DialogFlags::MODAL,
+            gtk::MessageType::Error,
+            gtk::ButtonsType::Ok,
+            "Login Required",
+        );
     }
 }
 

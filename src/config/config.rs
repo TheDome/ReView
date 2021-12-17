@@ -1,4 +1,7 @@
+use std::time::{Duration, SystemTime, UNIX_EPOCH};
+
 use base64::decode;
+use json::parse;
 use log::{debug, trace};
 
 #[derive(Debug)]
@@ -116,6 +119,45 @@ impl Config {
         }
 
         Some(config_file)
+    }
+
+    /// Determines the remeining time for a JWT to be valid
+    pub fn decode_expiry(token: &str) -> Duration {
+        let token = String::from(token);
+        let token = token.split(".").collect::<Vec<&str>>();
+        let main_part = token.get(1);
+
+        let main_part = match main_part {
+            Some(v) => v,
+            None => {
+                debug!("Failed to extract main part from token");
+                return Duration::from_secs(0);
+            }
+        };
+
+        let decoded = decode(main_part);
+
+        let decoded = match decoded {
+            Ok(v) => v,
+            Err(e) => {
+                debug!("Failed to decode token: {}", e);
+                return Duration::from_secs(0);
+            }
+        };
+
+        let json = parse(&String::from_utf8(decoded).unwrap());
+
+        if let Ok(json) = json {
+            let exp = json["exp"].as_u64();
+            let exp = exp.unwrap();
+            let now = SystemTime::now();
+            let exp = now.checked_add(Duration::from_secs(exp));
+            let exp = exp.unwrap();
+            let exp = exp.duration_since(UNIX_EPOCH).unwrap();
+            return exp;
+        }
+
+        Duration::from_secs(0)
     }
 }
 

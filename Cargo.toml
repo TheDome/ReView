@@ -18,7 +18,6 @@ session_from_config = []
 
 [dependencies]
 env_logger = "0.9.0"
-websocket = "0.26.2"
 json = "0.12.4"
 uuid = { version = "0.8.2", features = ["v4"] }
 glib = "0.14.8"
@@ -27,6 +26,11 @@ gdk = "0.13.2"
 qt-json = "1.0.2"
 directories = "4.0.1"
 base64 = "0.13.0"
+futures-util = "0.3.18"
+
+[dependencies.tokio-tungstenite]
+version = "0.16.0"
+features = ["native-tls"]
 
 [dependencies.tokio]
 version = "1.14.0"

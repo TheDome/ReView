@@ -2,6 +2,7 @@ use std::env::args;
 
 use gio::prelude::*;
 use log::{debug, info};
+use tokio::runtime::Handle;
 
 use crate::application::view::APPLICATION_IDENTIFIER;
 use crate::config::config::Config;
@@ -22,21 +23,23 @@ pub fn run() {
             panic!("Failed to initialize GTK Application: {}", error);
         }
     };
-
-    application.connect_activate(|app| {
+    let handle = Handle::current();
+    application.connect_activate(move |app| {
         info!("Application activated");
+        let app = app.clone();
+        handle.spawn(async move {
+            let config = Config::default();
 
-        let config = Config::default();
+            let app_view = view::app_view::AppView::new();
+            let app_model = model::app_model::AppModel::new(config);
 
-        let app_view = view::ui::AppView::new();
-        let app_model = model::searching_model::AppModel::new(config);
+            let app_controller = model::app_controller::AppController::new(app_model, app_view);
 
-        let app_controller = model::searching_controller::AppController::new(app_model, app_view);
+            debug!("Running AppController");
+            app_controller.connect_application(&app);
 
-        debug!("Running AppController");
-        app_controller.connect_application(app);
-
-        app_controller.run();
+            app_controller.run().await;
+        });
     });
 
     application.run(&args().collect::<Vec<_>>());

@@ -1,11 +1,13 @@
+use std::sync::mpsc::channel;
+
+use futures_util::FutureExt;
 use gio::prelude::*;
 use glib::clone;
 use gtk::{Application, DialogExt, GtkApplicationExt, GtkWindowExt};
 use log::{debug, info};
-use std::sync::mpsc::channel;
 
-use crate::application::model::searching_model::AppModel;
-use crate::application::view::ui::{build_about_dialog, AppView};
+use crate::application::model::app_model::AppModel;
+use crate::application::view::app_view::{build_about_dialog, AppView};
 
 pub struct AppController {
     model: AppModel,
@@ -54,6 +56,8 @@ impl AppController {
         for action in actions {
             application.add_action(&action);
         }
+
+        debug!("Connecting Events Done");
     }
 
     pub fn connect_application(&self, application: &gtk::Application) {
@@ -68,14 +72,19 @@ impl AppController {
         self.view.connect_application(application);
     }
 
-    pub fn run(mut self) {
+    pub async fn run(mut self) {
         debug!("Running Application");
+
+        self.model.is_logged_in().then(async {
+            self.view.show_login_required();
+        });
+
         self.show_view();
         self.start_search();
     }
 
     pub fn start_search(self) {
         debug!("Searching");
-        self.model.search();
+        self.model.start_search();
     }
 }

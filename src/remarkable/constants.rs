@@ -1,4 +1,4 @@
-#[cfg(other)]
+#[cfg(target_os = "other")]
 pub const REMARKABLE_DEVICE_DESCRIPTION: &str = "browser-chrome";
 
 #[cfg(target_os = "linux")]

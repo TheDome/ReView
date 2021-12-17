@@ -114,8 +114,8 @@ pub async fn discover() -> Result<BaseDomains, String> {
 }
 
 /**
-* Creates a new session token based on the user token
-*/
+ * Creates a new session token based on the user token
+ */
 pub async fn create_session_token(user_token: &str) -> Result<String, String> {
     debug!("Creating a new session token");
     trace!("Current user token: {}", user_token);
@@ -137,8 +137,8 @@ pub async fn create_session_token(user_token: &str) -> Result<String, String> {
 }
 
 /**
-* Creates a new token pair using the provided OTP
-*/
+ * Creates a new token pair using the provided OTP
+ */
 pub async fn login(otp: &str) -> Result<String, String> {
     debug!("Logging in.");
     trace!("Using otp: {}", otp);
