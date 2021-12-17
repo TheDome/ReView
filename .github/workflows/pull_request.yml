@@ -123,8 +123,11 @@ jobs:
     needs:
       - semantic-release
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      contents: write
     steps:
       - uses: actions/checkout@v2.4.0
-      - uses: fastify/github-action-merge-dependabot@v2.7.0
+      - uses: fastify/github-action-merge-dependabot@v3.0.2
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
