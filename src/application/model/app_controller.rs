@@ -72,11 +72,16 @@ impl AppController {
         self.view.connect_application(application);
     }
 
-    pub async fn run(mut self) {
+    pub fn run(mut self) {
+        debug!("AppController::run()");
         debug!("Running Application");
 
-        self.model.is_logged_in().then(async {
-            self.view.show_login_required();
+        self.model.is_logged_in().then(|logged| {
+            if !logged {
+                debug!("User is NOT logged in");
+                self.view.show_login_required();
+            }
+            async {}
         });
 
         self.show_view();

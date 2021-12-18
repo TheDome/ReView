@@ -4,7 +4,7 @@ use base64::decode;
 use json::parse;
 use log::{debug, trace};
 
-use crate::config::{Configure, Expirable, Identifiable};
+use crate::config::{Expirable, Identifiable, KeyStore, Serializable};
 
 #[derive(Debug)]
 pub struct Config {
@@ -21,8 +21,18 @@ impl Default for Config {
     }
 }
 
-impl Configure for Config {
-    fn deserialize(data: &str) -> Result<Self, String> {
+impl KeyStore for Config {
+    fn get_device_key(&self) -> Result<String, String> {
+        todo!()
+    }
+
+    fn get_session_key(&self) -> Result<String, String> {
+        todo!()
+    }
+}
+
+impl Config {
+    pub(crate) fn deserialize(data: &str) -> Result<Self, String> {
         debug!("Loading config");
 
         let mut config = Config::default();
@@ -42,12 +52,13 @@ impl Configure for Config {
             };
         }
 
-        debug!("Loaded config is: {:?}", self);
+        debug!("Loaded config is: {:?}", config);
 
         Ok(config)
     }
+}
 
-
+impl Serializable for Config {
     fn serialize(&self) -> Result<String, String> {
         trace!("usertoken: {:?}", self.session_key);
         trace!("devicetoken: {:?}", self.device_key);
@@ -83,15 +94,13 @@ impl Identifiable for Config {
             debug!("Extracting auth0 id from session key");
             trace!("Session key is: {}", key);
             if let Some(main_part) = key.split(".").collect::<Vec<&str>>().get(1) {
-                let decoded = decode(main_part)?;
+                let decoded = decode(main_part).map_err(|e| e.to_string())?;
 
+                let user_data = String::from_utf8(decoded).map_err(|e| e.to_string())?;
 
-                let user_data = String::from_utf8(decoded)?;
+                trace!("User data is: {:?}", user_data);
 
-
-                trace!("User data is: {}", user_data.as_ref().unwrap());
-
-                let object = json::parse(user_data.as_ref().unwrap());
+                let object = json::parse(user_data.as_ref());
 
                 trace!("User data is: {:?}", object);
 
@@ -109,7 +118,7 @@ impl Identifiable for Config {
                     debug!(
                         "Failed to parse user data: {} -> {:?}",
                         object.unwrap_err(),
-                        user_data.as_ref().unwrap()
+                        user_data
                     );
                     return Err(String::from("Failed to parse user data"));
                 };
@@ -123,7 +132,11 @@ impl Identifiable for Config {
 
 impl Expirable for Config {
     fn get_expiry(&self) -> Result<Duration, String> {
-        let token = String::from(token);
+        let token = &self.session_key;
+        if token.is_none() {
+            return Err(String::from("No session key found"));
+        }
+        let token = token.as_ref().unwrap();
         let token = token.split(".").collect::<Vec<&str>>();
         let main_part = token.get(1);
 

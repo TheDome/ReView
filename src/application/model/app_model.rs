@@ -1,12 +1,13 @@
 use std::fmt::Error;
 use std::task::Context;
-use std::time::Duration;
+use std::time::{Duration, UNIX_EPOCH};
 
 use log::{debug, info, trace};
 use tokio::sync::mpsc::{channel, Receiver, Sender};
 use tokio::task::futures;
 
 use crate::config::config::Config;
+use crate::config::Expirable;
 use crate::remarkable::web_socket::{await_message, create_socket, get_livesync_url};
 
 pub struct AppModel {
@@ -75,18 +76,14 @@ impl AppModel {
     pub async fn is_logged_in(&self) -> bool {
         debug!("Query login status...");
         // 1. get exp of session token
-        let session_token = &self.config.session_key;
+        let session_exp = &self.config.get_expiry();
 
-        trace!("Token is: {:?}", &session_token);
-
-        if let Some(key) = session_token {
-            let dur = Config::decode_expiry(key);
-
-            return dur.as_secs() > 0;
+        if session_exp.is_err() {
+            debug!("No session token found");
+            return false;
         }
 
-        debug!("No session token found");
-        return false;
+        return session_exp.is_ok() && session_exp.as_ref().unwrap().as_secs() > 0;
     }
 
     pub fn get_termination_channel(&self) -> Sender<()> {

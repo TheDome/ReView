@@ -5,7 +5,8 @@ use std::path::{Path, PathBuf};
 
 use directories::BaseDirs;
 
-use crate::config::config::Config;
+use crate::config::config::Config as ConfigStruct;
+use crate::config::{Config, KeyStore, Serializable};
 
 const CONFIG_FILE_PATH: &str = "rmapi";
 const CONFIG_FILE_NAME: &str = "rmapi.conf";
@@ -29,12 +30,12 @@ pub fn resolve_config_path() -> Result<PathBuf, String> {
 }
 
 /// Writes a Config struct to a file.
-pub fn write_config(_conf: &Config, _path: &Path) -> Result<(), String> {
+pub fn write_config(_conf: &dyn Serializable, _path: &Path) -> Result<(), String> {
     #[cfg(not(test))]
     {
         let mut file = File::create(_path).map_err(|e| e.to_string())?;
 
-        if let Some(content) = _conf.create_config_content() {
+        if let Ok(content) = _conf.serialize() {
             file.write_all(content.as_bytes())
                 .map_err(|e| e.to_string())?;
         }
@@ -43,11 +44,10 @@ pub fn write_config(_conf: &Config, _path: &Path) -> Result<(), String> {
 }
 
 /// Reads the config file and returns a Config object
-pub fn load_config_from_file(path: &str) -> Result<Config, String> {
+pub fn load_config_from_file(path: &str) -> Result<ConfigStruct, String> {
     let file = fs::read_to_string(path).map_err(|e| e.to_string())?;
 
-    let mut config = Config::default();
-    config.load(file.as_str()).map_err(|e| e.to_string())?;
+    let mut config = ConfigStruct::deserialize(file.as_str())?;
 
     Ok(config)
 }

@@ -3,13 +3,9 @@ use std::time::Duration;
 pub mod config;
 pub mod config_io;
 
+pub trait Config: KeyStore + Identifiable + Expirable + Serializable {}
 
-pub trait Configure {
-    /// Serializes the Config object into a string.
-    fn serialize(&self) -> Result<String, String>;
-    /// Deserializes the Config object from a string created by serialize().
-    fn deserialize(s: &str) -> Result<Self, String>;
-
+pub trait KeyStore {
     /// Returns the inner loaded device key as JWT
     fn get_device_key(&self) -> Result<String, String>;
 
@@ -24,4 +20,9 @@ pub trait Expirable {
 
 pub trait Identifiable {
     fn get_session_id(&self) -> Result<String, String>;
+}
+
+pub trait Serializable {
+    /// Serializes the Config object into a string.
+    fn serialize(&self) -> Result<String, String>;
 }

@@ -27,19 +27,17 @@ pub fn run() {
     application.connect_activate(move |app| {
         info!("Application activated");
         let app = app.clone();
-        handle.spawn(async move {
-            let config = Config::default();
+        let config = Config::default();
 
-            let app_view = view::app_view::AppView::new();
-            let app_model = model::app_model::AppModel::new(config);
+        let app_view = view::app_view::AppView::new();
+        let app_model = model::app_model::AppModel::new(config);
 
-            let app_controller = model::app_controller::AppController::new(app_model, app_view);
+        let app_controller = model::app_controller::AppController::new(app_model, app_view);
 
-            debug!("Running AppController");
-            app_controller.connect_application(&app);
+        debug!("Running AppController");
+        app_controller.connect_application(&app);
 
-            app_controller.run().await;
-        });
+        app_controller.run();
     });
 
     application.run(&args().collect::<Vec<_>>());
