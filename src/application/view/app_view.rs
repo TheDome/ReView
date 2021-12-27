@@ -30,8 +30,6 @@ impl AppView {
 
         let builder = gtk::Builder::from_string(APP_WINDOWS_STRING);
 
-
-
         let about_menu = build_about_menu();
         let about_dialog = build_about_dialog();
         let window = build_app_window(&builder);
@@ -88,8 +86,7 @@ impl AppView {
         self.otp_dialog.set_transient_for(Some(&self.window));
         self.otp_dialog.set_position(WindowPosition::CenterOnParent);
         self.otp_dialog.set_keep_above(true);
-        self.otp_dialog.
-        self.otp_dialog.show_all();
+        self.otp_dialog.self.otp_dialog.show_all();
     }
 }
 
