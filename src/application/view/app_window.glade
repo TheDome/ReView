@@ -57,7 +57,7 @@ At https://my.remarkable.com/device/desktop/connect</property>
           <placeholder/>
         </child>
         <child>
-          <object class="GtkButton">
+          <object class="GtkButton" id="otp_ok_button">
             <property name="label" translatable="yes">Ok</property>
             <property name="visible">True</property>
             <property name="can-focus">True</property>
