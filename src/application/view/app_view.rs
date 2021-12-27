@@ -107,7 +107,7 @@ pub fn build_about_dialog() -> gtk::AboutDialog {
 }
 
 pub fn build_app_window() -> gtk::ApplicationWindow {
-    let window_str = include_str!("Windows.glade");
+    let window_str = include_str!("app_window.glade");
     let builder = gtk::Builder::from_string(window_str);
 
     let window: gtk::ApplicationWindow = builder
