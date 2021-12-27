@@ -86,7 +86,7 @@ impl AppView {
         self.otp_dialog.set_transient_for(Some(&self.window));
         self.otp_dialog.set_position(WindowPosition::CenterOnParent);
         self.otp_dialog.set_keep_above(true);
-        self.otp_dialog.self.otp_dialog.show_all();
+        self.otp_dialog.show_all();
     }
 }
 
