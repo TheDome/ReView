@@ -2,38 +2,6 @@
 <!-- Generated with glade 3.38.2 -->
 <interface>
   <requires lib="gtk+" version="3.24"/>
-  <object class="GtkWindow" id="liveViewWindow">
-    <property name="width-request">177</property>
-    <property name="height-request">256</property>
-    <property name="can-focus">False</property>
-    <property name="hide-titlebar-when-maximized">True</property>
-    <child>
-      <object class="GtkBox">
-        <property name="visible">True</property>
-        <property name="can-focus">False</property>
-        <property name="orientation">vertical</property>
-        <child>
-          <placeholder/>
-        </child>
-        <child>
-          <object class="GtkDrawingArea" id="liveview_draw_area">
-            <property name="width-request">500</property>
-            <property name="height-request">500</property>
-            <property name="visible">True</property>
-            <property name="app-paintable">True</property>
-            <property name="can-focus">False</property>
-            <property name="has-focus">True</property>
-            <property name="is-focus">True</property>
-          </object>
-          <packing>
-            <property name="expand">True</property>
-            <property name="fill">True</property>
-            <property name="position">1</property>
-          </packing>
-        </child>
-      </object>
-    </child>
-  </object>
   <object class="GtkWindow" id="login_window">
     <property name="can-focus">False</property>
     <property name="default-width">440</property>
