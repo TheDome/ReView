@@ -6,7 +6,7 @@ use log::{debug, trace};
 
 use crate::config::{Expirable, Identifiable, KeyStore, Serializable};
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Config {
     pub device_key: Option<String>,
     pub session_key: Option<String>,

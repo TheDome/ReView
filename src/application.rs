@@ -2,7 +2,6 @@ use std::env::args;
 
 use gio::prelude::*;
 use log::{debug, info};
-use tokio::runtime::Handle;
 
 use crate::application::view::APPLICATION_IDENTIFIER;
 use crate::config::config::Config;
@@ -23,7 +22,7 @@ pub fn run() {
             panic!("Failed to initialize GTK Application: {}", error);
         }
     };
-    let handle = Handle::current();
+
     application.connect_activate(move |app| {
         info!("Application activated");
         let app = app.clone();

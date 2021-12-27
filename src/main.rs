@@ -4,8 +4,7 @@ mod application;
 mod config;
 mod remarkable;
 
-#[tokio::main(flavor = "multi_thread")]
-async fn main() {
+fn main() {
     env_logger::init();
 
     info!(

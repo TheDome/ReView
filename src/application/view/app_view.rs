@@ -1,11 +1,14 @@
-use gio::Menu;
+use gio::{Action, ActionMapExt, Menu, SimpleAction};
+use glib::GString;
 use gtk::prelude::*;
-use gtk::AboutDialogExt;
-use gtk::{HeaderBar, Label, MenuBar, MenuItem};
+use gtk::{AboutDialogExt, Entry, Widget};
+use gtk::{HeaderBar, Label, MenuBar, MenuItem, WindowPosition};
 use log::{debug, info, trace};
 
 use crate::application::model::app_controller::AppController;
 use crate::application::view::{APPLICATION_VERSION, MAIN_WINDOW_NAME};
+
+const APP_WINDOWS_STRING: &str = include_str!("app_window.glade");
 
 #[derive(Debug, Clone)]
 pub struct AppView {
@@ -14,6 +17,10 @@ pub struct AppView {
     about_menu: MenuItem,
     app_menu: Menu,
     menu_bar: Menu,
+    otp_dialog: gtk::Window,
+
+    pub login_window_ok_action: SimpleAction,
+    pub otp_entry: Entry,
 }
 
 impl AppView {
@@ -21,9 +28,14 @@ impl AppView {
         let app_menu = Menu::new();
         let menu_bar = Menu::new();
 
+        let builder = gtk::Builder::from_string(APP_WINDOWS_STRING);
+
+
+
         let about_menu = build_about_menu();
         let about_dialog = build_about_dialog();
-        let window = build_app_window();
+        let window = build_app_window(&builder);
+        let otp_dialog = build_otp_dialog(Some((&window).as_ref()), &builder);
 
         let more_menu = Menu::new();
 
@@ -32,12 +44,24 @@ impl AppView {
         app_menu.append(Some("Quit"), Some("app.quit"));
         menu_bar.append_submenu(Some("?"), &more_menu);
 
+        let login_window_action = gio::SimpleActionGroup::new();
+        otp_dialog.insert_action_group("otp_dialog", Some(&login_window_action));
+
+        let login_window_ok_action = gio::SimpleAction::new("ok", None);
+        login_window_action.add_action(&login_window_ok_action);
+
+        let otp_entry = gtk::Entry::new();
+
         AppView {
             window,
             about_dialog,
             about_menu,
             app_menu,
             menu_bar,
+            otp_dialog,
+
+            login_window_ok_action,
+            otp_entry,
         }
     }
 
@@ -58,16 +82,14 @@ impl AppView {
         self.window.set_application(Some(app));
     }
 
-    pub fn show_login_required(&self) {
+    pub fn show_login_dialog(&self) {
         debug!("Login required - Displaying");
 
-        let login_required_dialog = gtk::MessageDialog::new(
-            Some(&self.window),
-            gtk::DialogFlags::MODAL,
-            gtk::MessageType::Error,
-            gtk::ButtonsType::Ok,
-            "Login Required",
-        );
+        self.otp_dialog.set_transient_for(Some(&self.window));
+        self.otp_dialog.set_position(WindowPosition::CenterOnParent);
+        self.otp_dialog.set_keep_above(true);
+        self.otp_dialog.
+        self.otp_dialog.show_all();
     }
 }
 
@@ -76,6 +98,18 @@ fn build_about_menu() -> MenuItem {
     about_menu.set_label("About");
 
     about_menu
+}
+
+fn build_otp_dialog(parent: Option<&gtk::Window>, builder: &gtk::Builder) -> gtk::Window {
+    let window: gtk::Window = builder
+        .get_object("login_window")
+        .expect("Could not find login_window in glade file");
+
+    if parent.is_some() {
+        window.set_transient_for(parent);
+    }
+
+    window
 }
 
 pub fn build_about_dialog() -> gtk::AboutDialog {
@@ -106,10 +140,7 @@ pub fn build_about_dialog() -> gtk::AboutDialog {
     about_dialog
 }
 
-pub fn build_app_window() -> gtk::ApplicationWindow {
-    let window_str = include_str!("app_window.glade");
-    let builder = gtk::Builder::from_string(window_str);
-
+pub fn build_app_window(builder: &gtk::Builder) -> gtk::ApplicationWindow {
     let window: gtk::ApplicationWindow = builder
         .get_object("mainWindow")
         .expect("Could not find main window");

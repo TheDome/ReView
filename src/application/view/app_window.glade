@@ -43,7 +43,7 @@ At https://my.remarkable.com/device/desktop/connect</property>
           </packing>
         </child>
         <child>
-          <object class="GtkEntry" id="otp_input">
+          <object class="GtkEntry" id="otp_entry">
             <property name="visible">True</property>
             <property name="can-focus">True</property>
           </object>
@@ -54,23 +54,15 @@ At https://my.remarkable.com/device/desktop/connect</property>
           </packing>
         </child>
         <child>
-          <object class="GtkLabel" id="login_status_label">
-            <property name="visible">True</property>
-            <property name="can-focus">False</property>
-          </object>
-          <packing>
-            <property name="expand">False</property>
-            <property name="fill">True</property>
-            <property name="position">3</property>
-          </packing>
+          <placeholder/>
         </child>
         <child>
-          <object class="GtkButton" id="login_button">
-            <property name="label">gtk-ok</property>
+          <object class="GtkButton">
+            <property name="label" translatable="yes">Ok</property>
             <property name="visible">True</property>
             <property name="can-focus">True</property>
             <property name="receives-default">True</property>
-            <property name="use-stock">True</property>
+            <property name="action-name">otp_dialog.clicked</property>
           </object>
           <packing>
             <property name="expand">False</property>

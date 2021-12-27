@@ -10,6 +10,7 @@ use crate::config::config::Config;
 use crate::config::Expirable;
 use crate::remarkable::web_socket::{await_message, create_socket, get_livesync_url};
 
+#[derive(Debug)]
 pub struct AppModel {
     config: Config,
     termination_sender: Sender<()>,
@@ -74,7 +75,7 @@ impl AppModel {
     /// - check session token for validity
     /// - perform request with token
     pub async fn is_logged_in(&self) -> bool {
-        debug!("Query login status...");
+        debug!("app_model::is_logged_in()");
         // 1. get exp of session token
         let session_exp = &self.config.get_expiry();
 
@@ -83,7 +84,12 @@ impl AppModel {
             return false;
         }
 
-        return session_exp.is_ok() && session_exp.as_ref().unwrap().as_secs() > 0;
+        if session_exp.is_ok() && session_exp.as_ref().unwrap().as_secs() > 0 {
+            debug!("Session token is valid");
+            return true;
+        }
+
+        return false;
     }
 
     pub fn get_termination_channel(&self) -> Sender<()> {

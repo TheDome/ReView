@@ -3,8 +3,8 @@ use std::sync::mpsc::channel;
 use futures_util::FutureExt;
 use gio::prelude::*;
 use glib::clone;
-use gtk::{Application, DialogExt, GtkApplicationExt, GtkWindowExt};
-use log::{debug, info};
+use gtk::{Application, DialogExt, EditableExt, GtkApplicationExt, GtkWindowExt};
+use log::{debug, info, trace};
 
 use crate::application::model::app_model::AppModel;
 use crate::application::view::app_view::{build_about_dialog, AppView};
@@ -51,13 +51,25 @@ impl AppController {
             channel.send(());
         }));
 
-        let actions = vec![about, quit];
+        let ok_action = self.view.login_window_ok_action.clone();
+        let entry = self.view.otp_entry.clone();
+        ok_action.connect_activate(move |_, _| {
+            debug!("Login clicked");
+            entry.insert_text("", &mut 0);
+        });
+
+        let actions = vec![about, quit, ok_action];
 
         for action in actions {
             application.add_action(&action);
         }
 
         debug!("Connecting Events Done");
+    }
+
+    pub fn try_login(&self, token: String) {
+        debug!("Trying to login");
+        trace!("Token: {}", token);
     }
 
     pub fn connect_application(&self, application: &gtk::Application) {
@@ -76,13 +88,7 @@ impl AppController {
         debug!("AppController::run()");
         debug!("Running Application");
 
-        self.model.is_logged_in().then(|logged| {
-            if !logged {
-                debug!("User is NOT logged in");
-                self.view.show_login_required();
-            }
-            async {}
-        });
+        self.check_and_show_login_dialog();
 
         self.show_view();
         self.start_search();
@@ -91,5 +97,19 @@ impl AppController {
     pub fn start_search(self) {
         debug!("Searching");
         self.model.start_search();
+    }
+
+    fn check_and_show_login_dialog(&self) {
+        let logged = Self::create_tokio_runtime().block_on(self.model.is_logged_in());
+        debug!("User is logged in: {}", logged);
+
+        if (!logged) {
+            self.view.show_login_dialog();
+        }
+    }
+
+    fn create_tokio_runtime() -> tokio::runtime::Runtime {
+        debug!("Creating Tokio Runtime");
+        tokio::runtime::Runtime::new().expect("Failed to create Tokio runtime")
     }
 }
