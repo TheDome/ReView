@@ -1,9 +1,12 @@
+use std::sync::mpsc::Sender;
+
 use gio::{Action, ActionMapExt, Menu, SimpleAction};
-use glib::GString;
+use glib::{clone, GString};
 use gtk::prelude::*;
-use gtk::{AboutDialogExt, Entry, Widget};
+use gtk::{AboutDialogExt, Button, Entry, Widget};
 use gtk::{HeaderBar, Label, MenuBar, MenuItem, WindowPosition};
-use log::{debug, info, trace};
+use log::{debug, info, trace, warn};
+use tokio::sync::mpsc::{UnboundedReceiver, UnboundedSender};
 
 use crate::application::model::app_controller::AppController;
 use crate::application::view::{APPLICATION_VERSION, MAIN_WINDOW_NAME};
@@ -19,8 +22,8 @@ pub struct AppView {
     menu_bar: Menu,
     otp_dialog: gtk::Window,
 
-    pub login_window_ok_action: SimpleAction,
-    pub otp_entry: Entry,
+    otp_entry: Entry,
+    otp_button: Button,
 }
 
 impl AppView {
@@ -48,7 +51,8 @@ impl AppView {
         let login_window_ok_action = gio::SimpleAction::new("ok", None);
         login_window_action.add_action(&login_window_ok_action);
 
-        let otp_entry = gtk::Entry::new();
+        let otp_entry = builder.get_object("otp_entry").unwrap();
+        let otp_ok_button: Button = builder.get_object("otp_ok_button").unwrap();
 
         AppView {
             window,
@@ -58,7 +62,7 @@ impl AppView {
             menu_bar,
             otp_dialog,
 
-            login_window_ok_action,
+            otp_button: otp_ok_button,
             otp_entry,
         }
     }
@@ -81,12 +85,27 @@ impl AppView {
     }
 
     pub fn show_login_dialog(&self) {
-        debug!("Login required - Displaying");
+        debug!("app_view::show_login_dialog");
 
         self.otp_dialog.set_transient_for(Some(&self.window));
         self.otp_dialog.set_position(WindowPosition::CenterOnParent);
         self.otp_dialog.set_keep_above(true);
         self.otp_dialog.show_all();
+    }
+
+    pub fn get_otp_text(&self) -> String {
+        self.otp_entry.get_text().to_string()
+    }
+
+    /// Returns a channel where the value of the otp_entry will be sent when the button has been pressed
+    pub fn connect_otp_channel(&self, tx: UnboundedSender<String>) {
+        let entry = self.otp_entry.clone();
+        self.otp_button.connect_clicked(move |_| {
+            let otp_text = entry.get_text().to_string();
+            if let Err(e) = tx.send(otp_text) {
+                warn!("Error sending otp: {:?}", e);
+            }
+        });
     }
 }
 

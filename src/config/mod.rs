@@ -3,6 +3,7 @@ use std::time::Duration;
 pub mod config;
 pub mod config_io;
 
+pub trait UnserializableConfig: KeyStore + Identifiable + Expirable {}
 pub trait Config: KeyStore + Identifiable + Expirable + Serializable {}
 
 pub trait KeyStore {

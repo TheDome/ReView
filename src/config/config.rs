@@ -4,7 +4,7 @@ use base64::decode;
 use json::parse;
 use log::{debug, trace};
 
-use crate::config::{Expirable, Identifiable, KeyStore, Serializable};
+use crate::config::{Expirable, Identifiable, KeyStore, Serializable, UnserializableConfig};
 
 #[derive(Debug, Clone)]
 pub struct Config {
@@ -23,11 +23,17 @@ impl Default for Config {
 
 impl KeyStore for Config {
     fn get_device_key(&self) -> Result<String, String> {
-        todo!()
+        match &self.device_key {
+            Some(key) => Ok(key.clone()),
+            None => Err("No device key".to_string()),
+        }
     }
 
     fn get_session_key(&self) -> Result<String, String> {
-        todo!()
+        match &self.session_key {
+            Some(key) => Ok(key.clone()),
+            None => Err("No session key".to_string()),
+        }
     }
 }
 
@@ -52,7 +58,7 @@ impl Config {
             };
         }
 
-        debug!("Loaded config is: {:?}", config);
+        trace!("Loaded config is: {:?}", config);
 
         Ok(config)
     }
@@ -173,9 +179,11 @@ impl Expirable for Config {
         Err(String::from("Failed to parse token"))
     }
 }
+impl UnserializableConfig for Config {}
 
 #[cfg(test)]
 mod tests {
+    use gio::LoadableIconExt;
     use std::ffi::OsStr;
     use std::path::PathBuf;
 
@@ -231,12 +239,11 @@ mod tests {
 
     #[test]
     fn test_load_config() {
-        let mut config = Config::default();
-        let res = config.load("usertoken: session_key\ndevicetoken: device_key\n");
+        let res = Config::deserialize("usertoken: session_key\ndevicetoken: device_key\n").unwrap();
 
         assert_eq!(res, Ok(()));
 
-        assert_eq!(config.session_key, Some("session_key".into()));
-        assert_eq!(config.device_key, Some("device_key".into()));
+        assert_eq!(res.session_key, Some("session_key".into()));
+        assert_eq!(res.device_key, Some("device_key".into()));
     }
 }
