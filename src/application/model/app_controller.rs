@@ -97,9 +97,9 @@ impl AppController {
 
     pub fn start_search(&mut self) {
         debug!("Searching");
-        self.create_tokio_runtime().spawn(async {
+
             self.model.start_search();
-        });
+
     }
 
     fn check_and_show_login_dialog(&mut self) {

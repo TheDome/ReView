@@ -196,10 +196,10 @@ mod tests {
             session_key: Some(String::from("session_key")),
         };
 
-        let config_file = config.create_config_content();
+        let config_file = config.serialize().unwrap();
 
         assert_eq!(
-            config_file.unwrap(),
+            config_file,
             "usertoken: session_key\ndevicetoken: device_key\n"
         );
     }
@@ -210,7 +210,7 @@ mod tests {
         // This key does not contain an auth0 id
         config.session_key = Some("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c".into());
 
-        assert_eq!(config.auth0_id(), None);
+        assert!(config.get_session_id().is_err());
     }
 
     #[test]
@@ -222,7 +222,7 @@ mod tests {
             device_key: None,
         };
 
-        assert_eq!(config.auth0_id(), Some("test".into()));
+        assert_eq!(config.get_session_id(), Ok("test".into()));
     }
 
     #[test]
@@ -234,14 +234,16 @@ mod tests {
             device_key: None,
         };
 
-        assert_eq!(config.auth0_id(), None);
+        assert!(config.get_session_id().is_err());
     }
 
     #[test]
     fn test_load_config() {
-        let res = Config::deserialize("usertoken: session_key\ndevicetoken: device_key\n").unwrap();
+        let res = Config::deserialize("usertoken: session_key\ndevicetoken: device_key\n");
 
-        assert_eq!(res, Ok(()));
+        assert!(res.is_ok());
+
+        let res = res.unwrap();
 
         assert_eq!(res.session_key, Some("session_key".into()));
         assert_eq!(res.device_key, Some("device_key".into()));
