@@ -98,8 +98,7 @@ impl AppController {
     pub fn start_search(&mut self) {
         debug!("Searching");
 
-            self.model.start_search();
-
+        self.model.start_search();
     }
 
     fn check_and_show_login_dialog(&mut self) {
