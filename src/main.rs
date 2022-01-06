@@ -7,7 +7,7 @@ use tokio::runtime::Runtime;
 
 use crate::application::view::APPLICATION_IDENTIFIER;
 use crate::config::config::Config;
-use crate::config::config_io::{load_config_from_file, resolve_config_path, CONFIG_PATH};
+use crate::config::config_io::{load_config_from_file, resolve_config_path};
 
 use crate::application::{model, view};
 

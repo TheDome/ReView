@@ -8,8 +8,8 @@ use crate::config::{Expirable, Identifiable, KeyStore, Serializable, Unserializa
 
 #[derive(Debug, Clone)]
 pub struct Config {
-    pub device_key: Option<String>,
-    pub session_key: Option<String>,
+    device_key: Option<String>,
+    session_key: Option<String>,
 }
 
 impl Default for Config {
@@ -54,7 +54,7 @@ impl Config {
         for line in data.split("\n") {
             match line.split(':').next() {
                 Some("devicetoken") => {
-                    config.device_key = line.split(':').nth(1).map(|v| String::from(v.trim()));
+                     config.device_key = line.split(':').nth(1).map(|v| String::from(v.trim()));
                 }
 
                 #[cfg(any(feature = "session_from_config", debug_assertions))]

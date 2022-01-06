@@ -1,4 +1,6 @@
 use std::fmt::Error;
+use std::pin::Pin;
+use std::rc::Rc;
 use std::task::Context;
 use std::time::{Duration, UNIX_EPOCH};
 
@@ -10,13 +12,16 @@ use tokio::task::futures;
 use crate::application::model::AppModelled;
 use crate::config::config::Config;
 use crate::config::{Expirable, UnserializableConfig};
-use crate::remarkable::tokens;
+use crate::remarkable::tokens::{discover, RMTokens};
 use crate::remarkable::web_socket::{await_message, create_socket, get_livesync_url};
+use crate::remarkable::{tokens, RMTokenInterface};
 
 pub struct AppModel {
     config: Box<dyn UnserializableConfig>,
     termination_sender: Sender<()>,
     termination_receiver: Receiver<()>,
+
+    rm_api: Box<dyn RMTokenInterface>,
 
     runtime: Runtime,
 }
@@ -24,12 +29,18 @@ pub struct AppModel {
 impl AppModel {
     pub fn new(config: Config) -> Self {
         let (termination_sender, termination_receiver) = channel(1);
+        let runtime = Runtime::new().unwrap();
+
+        let domains = runtime
+            .block_on(discover())
+            .expect("Failed to discover domains");
 
         AppModel {
             config: Box::new(config),
             termination_receiver,
             termination_sender,
-            runtime: Runtime::new().unwrap(),
+            runtime,
+            rm_api: Box::new(tokens::RMTokens::new(domains)),
         }
     }
 }
@@ -112,7 +123,9 @@ impl AppModelled for AppModel {
 
         trace!("Device token is: {:?}", &token);
 
-        let result = self.runtime.block_on(tokens::create_session_token(&token));
+        let result = self
+            .runtime
+            .block_on(self.rm_api.create_session_token(&token));
 
         match result {
             Ok(token) => {
@@ -122,4 +135,22 @@ impl AppModelled for AppModel {
             Err(e) => Err(e.to_string()),
         }
     }
+
+    fn login_user(&mut self, otp: String) -> Result<(), String> {
+        trace!("AppModel::login_user(otp: {:?}", otp);
+
+        let result = self.runtime.block_on(self.rm_api.login(&otp))?;
+
+        self.config.set_device_key(result);
+
+        Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use tokio::runtime::Runtime;
+
+    fn detect_no_session_token() {}
 }

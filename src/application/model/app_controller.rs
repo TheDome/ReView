@@ -107,21 +107,22 @@ impl AppController {
         if !logged {
             self.view.show_login_dialog();
             let (tx, mut rx) = unbounded_channel::<String>();
-            let mut otp_rx = self.view.connect_otp_channel(tx);
-
+            self.view.connect_otp_channel(tx);
+            debug!("BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB");
             self.connect_otp_validation(rx);
         } else {
             self.start_search();
         }
     }
 
-    async fn connect_otp_validation(&mut self, mut channel: UnboundedReceiver<String>) {
+    fn connect_otp_validation(&mut self, mut channel: UnboundedReceiver<String>) {
         trace!("app_controller::connect_otp_validation()");
-        tokio::spawn(async move {
+        tokio::runtime::Runtime::new().unwrap().spawn(async move {
             loop {
                 debug!("OTP Channel opened!");
+                debug!("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAa");
                 let token = channel.recv().await;
-                debug!("{:?}", token);
+                trace!("{:?}", token);
                 if let Some(token) = token {
                     debug!("Token: {}", token);
                 } else {

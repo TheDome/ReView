@@ -13,6 +13,7 @@ pub const REMARKABLE_DEVICE_DESCRIPTION: &str = "desktop-macos";
 const AUTH0_USER: &str = "auth0|5ff43c03c9f7b3013eeec9a7";
 
 pub const PROTOCOL: &str = "https://";
+pub const WS_PROTOCOL: &str = "wss://";
 
 pub const REMARKABLE_SESSION_BASE_API: &str =
     "webapp-production-dot-remarkable-production.appspot.com";

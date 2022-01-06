@@ -23,6 +23,9 @@ pub trait AppModelled {
 
     /// Refeshed the session token by obtaining a new token from the device_key.
     fn refresh_session_token(&mut self) -> Result<(), String>;
+
+    /// Performa a user logn using the OTP provided from remarkable
+    fn login_user(&mut self, otp: String) -> Result<(), String>;
 }
 
 pub trait AppControllerable {}
