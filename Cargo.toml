@@ -52,3 +52,4 @@ features = ["max_level_trace", "release_max_level_warn"]
 
 [dev-dependencies]
 num = "0.4"
+mockito = "0.30.0"
