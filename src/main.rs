@@ -54,10 +54,11 @@ fn main() {
         };
 
         let app_view = view::app_view::AppView::new();
+        let otp_dialog = view::otp_view::OtpView::new();
         let app_model = model::app_model::AppModel::new(config);
 
         let mut app_controller =
-            model::app_controller::AppController::new(Box::new(app_model), app_view);
+            model::app_controller::AppController::new(Box::new(app_model), app_view, otp_dialog);
 
         debug!("Running AppController");
         app_controller.connect_application(&app);

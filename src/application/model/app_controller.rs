@@ -1,5 +1,5 @@
 use std::sync::mpsc::channel;
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
 
 use futures_util::FutureExt;
 use gio::prelude::*;
@@ -12,19 +12,22 @@ use tokio::sync::mpsc::{unbounded_channel, UnboundedReceiver};
 use crate::application::model::app_model::AppModel;
 use crate::application::model::AppModelled;
 use crate::application::view::app_view::{build_about_dialog, AppView};
+use crate::view::otp_view::OtpView;
 
 pub struct AppController {
-    model: Box<dyn AppModelled>,
+    model: Arc<Mutex<Box<dyn AppModelled>>>,
     view: Arc<AppView>,
+    otp_view: Arc<OtpView>,
 }
 
 impl AppController {
-    pub fn new(model: Box<dyn AppModelled>, view: AppView) -> AppController {
+    pub fn new(model: Box<dyn AppModelled>, view: AppView, otp_view: OtpView) -> AppController {
         debug!("AppController::new()");
 
         AppController {
-            model,
+            model: Arc::new(Mutex::new(model)),
             view: Arc::new(view),
+            otp_view: Arc::new(otp_view),
         }
     }
 
@@ -50,7 +53,7 @@ impl AppController {
         });
 
         let quit = gio::SimpleAction::new("quit", None);
-        let channel = self.model.get_termination_channel();
+        let channel = self.model.lock().unwrap().get_termination_channel();
 
         quit.connect_activate(clone!(@strong window => move |_, _| {
             debug!("Quit clicked");
@@ -96,41 +99,48 @@ impl AppController {
     pub fn start_search(&mut self) {
         debug!("Searching");
 
-        self.model.start_search();
+        self.model.lock().unwrap().start_search();
     }
 
     fn check_and_show_login_dialog(&mut self) {
-        let mut model = self.model.as_mut();
-        let logged = model.is_logged_in();
+        let mut model = self.model.clone();
+        let logged = model.lock().unwrap().is_logged_in();
         debug!("User is logged in: {}", logged);
 
         if !logged {
-            self.view.show_login_dialog();
-            let (tx, mut rx) = unbounded_channel::<String>();
-            self.view.connect_otp_channel(tx);
-            debug!("BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB");
+            self.otp_view.show_login_dialog();
+
+            let rx = self.otp_view.connect_otp_channel();
             self.connect_otp_validation(rx);
         } else {
             self.start_search();
         }
     }
 
-    fn connect_otp_validation(&mut self, mut channel: UnboundedReceiver<String>) {
+    fn connect_otp_validation(&self, mut channel: glib::Receiver<String>) {
         trace!("app_controller::connect_otp_validation()");
-        tokio::runtime::Runtime::new().unwrap().spawn(async move {
-            loop {
-                debug!("OTP Channel opened!");
-                debug!("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAa");
-                let token = channel.recv().await;
-                trace!("{:?}", token);
-                if let Some(token) = token {
-                    debug!("Token: {}", token);
-                } else {
-                    break;
+
+        let model = self.model.clone();
+        let otp_view = self.otp_view.clone();
+
+        channel.attach(None, move |otp| {
+            trace!("OTP is: {}", otp);
+            let result = model.lock().unwrap().login_user(otp);
+            otp_view.clear_info();
+
+            trace!("OTP Result: {:?}", result);
+
+            match result {
+                Ok(_) => {
+                    debug!("OTP Validation passed!");
+                }
+                Err(e) => {
+                    debug!("OTP Validation failed: {}", e);
+                    otp_view.show_info(e.as_str());
                 }
             }
 
-            debug!("FINISHED");
+            glib::Continue(true)
         });
     }
 }

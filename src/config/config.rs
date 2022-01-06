@@ -54,7 +54,7 @@ impl Config {
         for line in data.split("\n") {
             match line.split(':').next() {
                 Some("devicetoken") => {
-                     config.device_key = line.split(':').nth(1).map(|v| String::from(v.trim()));
+                    //    config.device_key = line.split(':').nth(1).map(|v| String::from(v.trim()));
                 }
 
                 #[cfg(any(feature = "session_from_config", debug_assertions))]
