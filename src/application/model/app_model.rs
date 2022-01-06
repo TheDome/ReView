@@ -137,7 +137,7 @@ impl AppModelled for AppModel {
     }
 
     fn login_user(&mut self, otp: String) -> Result<(), String> {
-        trace!("AppModel::login_user(otp: {:?}", otp);
+        trace!("AppModel::login_user(otp: {:?})", otp);
 
         let result = self.runtime.block_on(self.rm_api.login(&otp))?;
 

@@ -133,6 +133,8 @@ impl AppController {
             match result {
                 Ok(_) => {
                     debug!("OTP Validation passed!");
+                    otp_view.close_login_dialog();
+                    model.lock().unwrap().start_search();
                 }
                 Err(e) => {
                     debug!("OTP Validation failed: {}", e);

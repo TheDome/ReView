@@ -44,6 +44,7 @@ impl OtpView {
 
         self.otp_dialog.set_position(WindowPosition::CenterOnParent);
         self.otp_dialog.set_keep_above(true);
+        self.otp_information_label.set_text("");
         self.otp_dialog.show_all();
     }
 
@@ -74,6 +75,10 @@ impl OtpView {
 
     pub fn show_validating_info(&self) {
         self.otp_information_label.set_text("Validating OTP...");
+    }
+
+    pub fn close_login_dialog(&self) {
+        self.otp_dialog.close();
     }
 }
 
