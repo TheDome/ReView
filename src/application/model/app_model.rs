@@ -3,27 +3,33 @@ use std::task::Context;
 use std::time::{Duration, UNIX_EPOCH};
 
 use log::{debug, info, trace};
+use tokio::runtime::Runtime;
 use tokio::sync::mpsc::{channel, Receiver, Sender};
 use tokio::task::futures;
 
 use crate::application::model::AppModelled;
 use crate::config::config::Config;
 use crate::config::{Expirable, UnserializableConfig};
+use crate::remarkable::tokens;
 use crate::remarkable::web_socket::{await_message, create_socket, get_livesync_url};
 
 pub struct AppModel {
     config: Box<dyn UnserializableConfig>,
     termination_sender: Sender<()>,
     termination_receiver: Receiver<()>,
+
+    runtime: Runtime,
 }
 
 impl AppModel {
     pub fn new(config: Config) -> Self {
         let (termination_sender, termination_receiver) = channel(1);
+
         AppModel {
             config: Box::new(config),
             termination_receiver,
             termination_sender,
+            runtime: Runtime::new().unwrap(),
         }
     }
 }
@@ -34,18 +40,19 @@ impl AppModelled for AppModel {
     ///
     /// - check session token for validity
     /// - perform request with token
-    fn is_logged_in(&self) -> bool {
+    fn is_logged_in(&mut self) -> bool {
         debug!("app_model::is_logged_in()");
         // 1. get exp of session token
         let session_exp = &self.config.get_expiry();
 
-        if session_exp.is_err() {
-            debug!("No session token found");
-            return false;
-        }
-
         if session_exp.is_ok() && session_exp.as_ref().unwrap().as_secs() > 0 {
             debug!("Session token is valid");
+            return true;
+        }
+
+        // Attempt to refresh session token
+        if let Ok(_) = self.refresh_session_token() {
+            debug!("Session token refreshed");
             return true;
         }
 
@@ -69,8 +76,8 @@ impl AppModelled for AppModel {
 
         let mut rx = &self.termination_receiver;
 
-        let _search_task = tokio::spawn(async move {
-            debug!("Searching for {:?}", device_key);
+        let _search_task = self.runtime.spawn(async move {
+            debug!("Searching using device key {:?}", device_key);
 
             let url = get_livesync_url();
             let mut client = create_socket(&url, &session_key).await;
@@ -96,5 +103,23 @@ impl AppModelled for AppModel {
 
     fn get_termination_channel(&self) -> Sender<()> {
         self.termination_sender.clone()
+    }
+
+    fn refresh_session_token(&mut self) -> Result<(), String> {
+        debug!("Refreshing session token");
+
+        let token = self.config.get_device_key()?;
+
+        trace!("Device token is: {:?}", &token);
+
+        let result = self.runtime.block_on(tokens::create_session_token(&token));
+
+        match result {
+            Ok(token) => {
+                self.config.set_session_key(token);
+                Ok(())
+            }
+            Err(e) => Err(e.to_string()),
+        }
     }
 }

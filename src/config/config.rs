@@ -35,6 +35,14 @@ impl KeyStore for Config {
             None => Err("No session key".to_string()),
         }
     }
+
+    fn set_device_key(&mut self, key: String) {
+        self.device_key = Some(key);
+    }
+
+    fn set_session_key(&mut self, key: String) {
+        self.session_key = Some(key);
+    }
 }
 
 impl Config {

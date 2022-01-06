@@ -4,6 +4,7 @@ pub mod config;
 pub mod config_io;
 
 pub trait UnserializableConfig: KeyStore + Identifiable + Expirable {}
+
 pub trait Config: KeyStore + Identifiable + Expirable + Serializable {}
 
 pub trait KeyStore {
@@ -12,6 +13,12 @@ pub trait KeyStore {
 
     /// Returns the inner loaded session key as JWT
     fn get_session_key(&self) -> Result<String, String>;
+
+    /// Stores the device key
+    fn set_device_key(&mut self, key: String);
+
+    /// Stored the session key
+    fn set_session_key(&mut self, key: String);
 }
 
 pub trait Expirable {

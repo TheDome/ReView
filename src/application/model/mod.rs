@@ -12,7 +12,7 @@ pub trait AppModelled {
     ///
     /// - check session token for validity
     /// - perform request with token
-    fn is_logged_in(&self) -> bool;
+    fn is_logged_in(&mut self) -> bool;
     /// Starts the search for connections
     fn start_search(&self) -> Result<(), String>;
 
@@ -20,6 +20,9 @@ pub trait AppModelled {
     fn update_config(&mut self, config: Box<dyn UnserializableConfig>);
 
     fn get_termination_channel(&self) -> Sender<()>;
+
+    /// Refeshed the session token by obtaining a new token from the device_key.
+    fn refresh_session_token(&mut self) -> Result<(), String>;
 }
 
 pub trait AppControllerable {}

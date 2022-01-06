@@ -1,4 +1,5 @@
 use std::sync::mpsc::channel;
+use std::sync::Arc;
 
 use futures_util::FutureExt;
 use gio::prelude::*;
@@ -14,9 +15,7 @@ use crate::application::view::app_view::{build_about_dialog, AppView};
 
 pub struct AppController {
     model: Box<dyn AppModelled>,
-    view: AppView,
-
-    runtime: tokio::runtime::Runtime,
+    view: Arc<AppView>,
 }
 
 impl AppController {
@@ -25,8 +24,7 @@ impl AppController {
 
         AppController {
             model,
-            view,
-            runtime: tokio::runtime::Runtime::new().expect("Failed to create Tokio runtime"),
+            view: Arc::new(view),
         }
     }
 
@@ -75,7 +73,7 @@ impl AppController {
     }
 
     pub fn connect_application(&mut self, application: &gtk::Application) {
-        debug!("Connecting Application");
+        debug!("AppController::connect_application()");
 
         self.connect_events(application);
 
@@ -102,7 +100,8 @@ impl AppController {
     }
 
     fn check_and_show_login_dialog(&mut self) {
-        let logged = self.model.is_logged_in();
+        let mut model = self.model.as_mut();
+        let logged = model.is_logged_in();
         debug!("User is logged in: {}", logged);
 
         if !logged {
@@ -116,9 +115,9 @@ impl AppController {
         }
     }
 
-    fn connect_otp_validation(&mut self, mut channel: UnboundedReceiver<String>) {
+    async fn connect_otp_validation(&mut self, mut channel: UnboundedReceiver<String>) {
         trace!("app_controller::connect_otp_validation()");
-        self.create_tokio_runtime().spawn(async move {
+        tokio::spawn(async move {
             loop {
                 debug!("OTP Channel opened!");
                 let token = channel.recv().await;
@@ -132,10 +131,5 @@ impl AppController {
 
             debug!("FINISHED");
         });
-    }
-
-    fn create_tokio_runtime(&mut self) -> &Runtime {
-        debug!("Creating Tokio Runtime");
-        &self.runtime
     }
 }
