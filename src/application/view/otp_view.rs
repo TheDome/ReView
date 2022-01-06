@@ -71,6 +71,10 @@ impl OtpView {
     pub fn clear_info(&self) {
         self.otp_information_label.set_text("");
     }
+
+    pub fn show_validating_info(&self) {
+        self.otp_information_label.set_text("Validating OTP...");
+    }
 }
 
 fn build_otp_dialog(parent: Option<&gtk::Window>, builder: &gtk::Builder) -> gtk::Window {

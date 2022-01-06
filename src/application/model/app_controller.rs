@@ -126,7 +126,7 @@ impl AppController {
         channel.attach(None, move |otp| {
             trace!("OTP is: {}", otp);
             let result = model.lock().unwrap().login_user(otp);
-            otp_view.clear_info();
+            otp_view.show_validating_info();
 
             trace!("OTP Result: {:?}", result);
 
