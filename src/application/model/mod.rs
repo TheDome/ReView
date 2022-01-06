@@ -14,7 +14,7 @@ pub trait AppModelled {
     /// - perform request with token
     fn is_logged_in(&mut self) -> bool;
     /// Starts the search for connections
-    fn start_search(&self) -> Result<(), String>;
+    fn start_search(&mut self) -> Result<(), String>;
 
     /// Updates the config with the given config
     fn update_config(&mut self, config: Box<dyn UnserializableConfig>);
@@ -22,10 +22,14 @@ pub trait AppModelled {
     fn get_termination_channel(&self) -> Sender<()>;
 
     /// Refeshed the session token by obtaining a new token from the device_key.
-    fn refresh_session_token(&mut self) -> Result<(), String>;
+    /// @returns the new session token
+    fn refresh_session_token(&mut self) -> Result<String, String>;
 
     /// Performa a user logn using the OTP provided from remarkable
     fn login_user(&mut self, otp: String) -> Result<(), String>;
+
+    /// Attempts to find a valid session key to use.
+    fn get_session_key(&mut self) -> Result<String, String>;
 }
 
 pub trait AppControllerable {}

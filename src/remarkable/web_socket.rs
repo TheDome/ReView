@@ -3,6 +3,7 @@ use std::sync::mpsc;
 use std::sync::mpsc::Receiver;
 use std::thread::JoinHandle;
 
+use crate::remarkable::BaseDomains;
 use futures_util::StreamExt;
 use log::{debug, error, trace, warn};
 use tokio::net::TcpStream;
@@ -45,10 +46,12 @@ pub async fn create_socket(
 
     let token = token.to_string();
 
-    let req = http::Request::builder();
+    let req = http::Request::builder().uri(url);
+
     let req = req.header("Authorization", format!("Bearer {}", token));
 
     let req = req.body(())?;
+
     let req = req.into_client_request()?;
 
     let res = connect_async(req).await?;
@@ -101,6 +104,9 @@ fn token_from_msg(msg: &str) -> String {
     session_token.to_string()
 }
 
-pub fn get_livesync_url() -> String {
-    format!("{}{}", PROTOCOL, REMARKABLE_LIVESYNC_DISCOVERY_PATH)
+pub fn get_livesync_url(base: &BaseDomains) -> String {
+    format!(
+        "{}{}",
+        base.notifications, REMARKABLE_NOTIFICATION_SOCKET_PATH
+    )
 }

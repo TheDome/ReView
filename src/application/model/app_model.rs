@@ -14,7 +14,7 @@ use crate::config::config::Config;
 use crate::config::{Expirable, UnserializableConfig};
 use crate::remarkable::tokens::{discover, RMTokens};
 use crate::remarkable::web_socket::{await_message, create_socket, get_livesync_url};
-use crate::remarkable::{tokens, RMTokenInterface};
+use crate::remarkable::{tokens, BaseDomains, RMTokenInterface};
 
 pub struct AppModel {
     config: Box<dyn UnserializableConfig>,
@@ -24,6 +24,7 @@ pub struct AppModel {
     rm_api: Box<dyn RMTokenInterface>,
 
     runtime: Runtime,
+    domains: BaseDomains,
 }
 
 impl AppModel {
@@ -40,7 +41,8 @@ impl AppModel {
             termination_receiver,
             termination_sender,
             runtime,
-            rm_api: Box::new(tokens::RMTokens::new(domains)),
+            rm_api: Box::new(tokens::RMTokens::new(domains.clone())),
+            domains,
         }
     }
 }
@@ -70,11 +72,11 @@ impl AppModelled for AppModel {
         return false;
     }
 
-    fn start_search(&self) -> Result<(), String> {
+    fn start_search(&mut self) -> Result<(), String> {
         let config = &self.config;
 
         let device_key = config.get_device_key();
-        let token = config.get_session_key();
+        let token = self.get_session_key();
 
         trace!("Session token is: {:?}", &token);
 
@@ -87,10 +89,12 @@ impl AppModelled for AppModel {
 
         let mut rx = &self.termination_receiver;
 
+        let base_domains = self.domains.clone();
+
         let _search_task = self.runtime.spawn(async move {
             debug!("Searching using device key {:?}", device_key);
 
-            let url = get_livesync_url();
+            let url = get_livesync_url(&base_domains);
             let mut client = create_socket(&url, &session_key).await;
 
             if client.is_err() {
@@ -116,7 +120,7 @@ impl AppModelled for AppModel {
         self.termination_sender.clone()
     }
 
-    fn refresh_session_token(&mut self) -> Result<(), String> {
+    fn refresh_session_token(&mut self) -> Result<String, String> {
         debug!("Refreshing session token");
 
         let token = self.config.get_device_key()?;
@@ -129,8 +133,8 @@ impl AppModelled for AppModel {
 
         match result {
             Ok(token) => {
-                self.config.set_session_key(token);
-                Ok(())
+                self.config.set_session_key(token.clone());
+                Ok(token)
             }
             Err(e) => Err(e.to_string()),
         }
@@ -144,6 +148,18 @@ impl AppModelled for AppModel {
         self.config.set_device_key(result);
 
         Ok(())
+    }
+
+    fn get_session_key(&mut self) -> Result<String, String> {
+        if let Ok(key) = self.config.get_session_key() {
+            if self.config.get_expiry().is_ok() {
+                return Ok(key);
+            }
+        }
+
+        let key = self.refresh_session_token()?;
+
+        return Err("No session key found".into());
     }
 }
 
