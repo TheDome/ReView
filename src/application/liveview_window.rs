@@ -1,21 +1,12 @@
-use std::f64::consts::PI;
-
-
-
-
-
-
+use cairo::Context;
 use cairo::PdfSurface;
-use cairo::{Context};
-
-
-
-use glib::{Continue};
+use glib::Continue;
 use gtk::prelude::*;
 use gtk::{Inhibit, WidgetExt};
 use log::{debug, trace, warn};
+use std::f64::consts::PI;
 
-use crate::application::application::WINDOWS_STRING;
+use crate::application::;
 use crate::remarkable::format::data::{DEVICE_HEIGHT, DEVICE_WIDTH};
 use crate::remarkable::format::linesdata::parse_binary_live_lines;
 use crate::remarkable::web_socket::data_socket;
@@ -27,30 +18,30 @@ pub struct LiveViewWindow {
     surface: cairo::PdfSurface,
 }
 
-const WINDOW_SCALER:f64 = 2.0;
+const WINDOW_SCALER: f64 = 2.0;
 
 impl LiveViewWindow {
     pub fn new(host: &str, auth0_id: &str, session_token: &str) -> Self {
         let (receiver, socket) = data_socket(host.to_string(), auth0_id, session_token.to_string());
 
-      /*     let (sender, receiver) = glib::MainContext::channel(glib::PRIORITY_DEFAULT_IDLE);
+        /*     let (sender, receiver) = glib::MainContext::channel(glib::PRIORITY_DEFAULT_IDLE);
 
-        std::thread::spawn(move  ||{
+                std::thread::spawn(move  ||{
 
-            let data = include_bytes!("../remarkable/format/example.bin");
+                    let data = include_bytes!("../remarkable/format/example.bin");
 
-            std::thread::sleep(Duration::from_secs(5));
+                    std::thread::sleep(Duration::from_secs(5));
 
-            sender.send(data.to_vec());
+                    sender.send(data.to_vec());
 
-            std::thread::sleep(Duration::from_secs(10));
+                    std::thread::sleep(Duration::from_secs(10));
 
-            let data = include_bytes!("../remarkable/format/example1.bin");
+                    let data = include_bytes!("../remarkable/format/example1.bin");
 
-            sender.send(data.to_vec());
+                    sender.send(data.to_vec());
 
-        });
-*/
+                });
+        */
         let builder = gtk::Builder::from_string(WINDOWS_STRING);
 
         let window: gtk::Window = builder
@@ -66,8 +57,12 @@ impl LiveViewWindow {
         path.push(uuid::Uuid::new_v4().to_string());
         path.set_extension("pdf");
 
-        let surface = PdfSurface::new(DEVICE_WIDTH / WINDOW_SCALER, DEVICE_HEIGHT /WINDOW_SCALER, path)
-            .expect("Failed to create PDF");
+        let surface = PdfSurface::new(
+            DEVICE_WIDTH / WINDOW_SCALER,
+            DEVICE_HEIGHT / WINDOW_SCALER,
+            path,
+        )
+        .expect("Failed to create PDF");
 
         let surface_clone = surface.clone();
 
@@ -84,9 +79,17 @@ impl LiveViewWindow {
 
         window.show_all();
 
-        draw_area.set_size_request((DEVICE_WIDTH / WINDOW_SCALER) as i32, (DEVICE_HEIGHT / WINDOW_SCALER) as i32);
+        draw_area.set_size_request(
+            (DEVICE_WIDTH / WINDOW_SCALER) as i32,
+            (DEVICE_HEIGHT / WINDOW_SCALER) as i32,
+        );
 
-        LiveViewWindow { receiver, draw_area, window, surface }
+        LiveViewWindow {
+            receiver,
+            draw_area,
+            window,
+            surface,
+        }
     }
 
     /**
@@ -114,11 +117,11 @@ impl LiveViewWindow {
                     trace!("Drawing {} points", line.points.len());
 
                     let points = line.points;
-                    let (r,g,b) = line.color.as_rgb();
+                    let (r, g, b) = line.color.as_rgb();
 
                     if !points.is_empty() {
                         context.save();
-                        context.set_source_rgb(r,g,b);
+                        context.set_source_rgb(r, g, b);
 
                         trace!("Starting at: {:?}", points[0]);
                         trace!(
@@ -129,7 +132,13 @@ impl LiveViewWindow {
 
                         for p in points {
                             context.set_line_width(p.width);
-                            context.arc(p.x / WINDOW_SCALER, p.y/WINDOW_SCALER, p.width / 2.0 / WINDOW_SCALER, 0.0, 2.0 * PI);
+                            context.arc(
+                                p.x / WINDOW_SCALER,
+                                p.y / WINDOW_SCALER,
+                                p.width / 2.0 / WINDOW_SCALER,
+                                0.0,
+                                2.0 * PI,
+                            );
                             context.fill();
                         }
 

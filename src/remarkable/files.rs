@@ -1,7 +1,6 @@
-use std::borrow::Borrow;
-
 use gtk::targets_include_rich_text;
 use log::{debug, info, trace};
+use std::borrow::Borrow;
 
 use crate::remarkable::constants::{
     PROTOCOL, REMARKABLE_STORAGE_DISCOVERY_PATH, REMARKABLE_STORAGE_PATH,
@@ -15,8 +14,8 @@ pub struct APIConnection<'a> {
 }
 
 /**
-* transforms a remalable internal ID into a string presentable to the user
-*/
+ * transforms a remalable internal ID into a string presentable to the user
+ */
 pub async fn info_for_item(
     storage_url: &str,
     user_token: &str,
