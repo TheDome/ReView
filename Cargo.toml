@@ -20,7 +20,7 @@ json = "0.12.4"
 uuid = { version = "0.8.2", features = ["v4"] }
 glib = "0.14.8"
 cairo-rs = { version = "^0", features = ["v1_16", "pdf"] }
-gdk = "0.13.2"
+gdk = "0.15.1"
 byteorder = "1.4.3"
 num = "0.4"
 num-traits = "0.2"
