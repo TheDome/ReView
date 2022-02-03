@@ -5,9 +5,9 @@ name = "ReView"
 version = "0.0.0"
 dependencies = [
  "byteorder",
- "cairo-rs 0.9.1",
+ "cairo-rs 0.15.1",
  "env_logger",
- "gdk 0.15.1",
+ "gdk 0.15.2",
  "gio 0.9.1",
  "glib 0.14.8",
  "gtk",
@@ -512,9 +512,9 @@ dependencies = [
 
 [[package]]
 name = "gdk"
-version = "0.15.1"
+version = "0.15.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "14ea90ec5551a0d11629964bad771306737ba3dfacc5ddc66bb9449b66100fd8"
+checksum = "614258e81ec35ed8770e64a0838f3a47f95b398bc51e724d3b3fa09c1ee0f8d5"
 dependencies = [
  "bitflags",
  "cairo-rs 0.15.1",
