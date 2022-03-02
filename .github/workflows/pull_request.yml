@@ -16,7 +16,7 @@ jobs:
   audit:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2.4.0
+      - uses: actions/checkout@v3
       - name: Security audit
         uses: actions-rs/audit-check@v1
         with:
@@ -24,7 +24,7 @@ jobs:
   check:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2.4.0
+      - uses: actions/checkout@v3
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
@@ -45,7 +45,7 @@ jobs:
     needs:
       - check
     steps:
-      - uses: actions/checkout@v2.4.0
+      - uses: actions/checkout@v3
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
@@ -67,7 +67,7 @@ jobs:
     needs:
       - check
     steps:
-      - uses: actions/checkout@v2.4.0
+      - uses: actions/checkout@v3
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
@@ -96,7 +96,7 @@ jobs:
       - build
       - test
     steps:
-      - uses: actions/checkout@v2.4.0
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 1
       - uses: actions/setup-node@v3.0.0
@@ -127,7 +127,7 @@ jobs:
       pull-requests: write
       contents: write
     steps:
-      - uses: actions/checkout@v2.4.0
+      - uses: actions/checkout@v3
       - uses: fastify/github-action-merge-dependabot@v3.0.2
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
