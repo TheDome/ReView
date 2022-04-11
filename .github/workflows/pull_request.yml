@@ -85,7 +85,7 @@ jobs:
         with:
           command: build
           args: --verbose
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           name: linux-binary
           path: target/debug/ReView
