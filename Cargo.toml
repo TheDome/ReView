@@ -13,21 +13,21 @@ session_from_config = []
 QJsonBigEndian = []
 
 [dependencies]
-reqwest = { version = "0.11.6", features = ["default-tls", "json"] }
+reqwest = { version = "0.11.9", features = ["default-tls", "json"] }
 env_logger = "0.9.0"
 websocket = "0.26.2"
 json = "0.12.4"
 uuid = { version = "0.8.2", features = ["v4"] }
 glib = "0.14.8"
 cairo-rs = { version = "^0", features = ["v1_16", "pdf"] }
-gdk = "0.13.2"
+gdk = "0.15.1"
 byteorder = "1.4.3"
 num = "0.4"
 num-traits = "0.2"
 num-derive = "0.3"
 
 [dependencies.tokio]
-version = "1.13.0"
+version = "1.15.0"
 features = ["macros", "rt-multi-thread"]
 
 [dependencies.gtk]

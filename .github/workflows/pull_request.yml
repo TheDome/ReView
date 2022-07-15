@@ -16,25 +16,21 @@ jobs:
   audit:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2.4.0
-      - uses: actions-rs/install@v0.1
+      - uses: actions/checkout@v3
+      - name: Security audit
+        uses: actions-rs/audit-check@v1
         with:
-          crate: cargo-audit
-          version: latest
-          use-tool-cache: true
-      - uses: actions-rs/cargo@v1
-        with:
-          command: audit
+          token: ${{ secrets.GITHUB_TOKEN }}
   check:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2.4.0
+      - uses: actions/checkout@v3
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
       - name: Install gtk-dev
         run: sudo apt-get install build-essential libgtk-3-dev
-      - uses: actions/cache@v2
+      - uses: actions/cache@v3
         with:
           path: |
             ~/.cargo/registry
@@ -49,14 +45,14 @@ jobs:
     needs:
       - check
     steps:
-      - uses: actions/checkout@v2.4.0
+      - uses: actions/checkout@v3
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
           override: true
       - name: Install gtk-dev
         run: sudo apt-get install build-essential libgtk-3-dev
-      - uses: actions/cache@v2
+      - uses: actions/cache@v3
         with:
           path: |
             ~/.cargo/registry
@@ -71,14 +67,14 @@ jobs:
     needs:
       - check
     steps:
-      - uses: actions/checkout@v2.4.0
+      - uses: actions/checkout@v3
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
           override: true
       - name: Install gtk-dev
         run: sudo apt-get install build-essential libgtk-3-dev
-      - uses: actions/cache@v2
+      - uses: actions/cache@v3
         with:
           path: |
             ~/.cargo/registry
@@ -89,7 +85,7 @@ jobs:
         with:
           command: build
           args: --verbose
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           name: linux-binary
           path: target/debug/ReView
@@ -100,10 +96,10 @@ jobs:
       - build
       - test
     steps:
-      - uses: actions/checkout@v2.4.0
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 1
-      - uses: actions/setup-node@v2.4.1
+      - uses: actions/setup-node@v3.4.1
         with:
           node-version: "14"
       - shell: bash
@@ -127,8 +123,11 @@ jobs:
     needs:
       - semantic-release
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      contents: write
     steps:
-      - uses: actions/checkout@v2.4.0
-      - uses: fastify/github-action-merge-dependabot@v2.1.1
+      - uses: actions/checkout@v3
+      - uses: fastify/github-action-merge-dependabot@v3.2.0
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
