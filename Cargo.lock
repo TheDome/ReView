@@ -7,7 +7,7 @@ name = "ReView"
 version = "0.0.0"
 dependencies = [
  "byteorder",
- "cairo-rs 0.9.1",
+ "cairo-rs 0.15.1",
  "env_logger",
  "gdk 0.15.1",
  "gio 0.9.1",
@@ -2586,9 +2586,9 @@ dependencies = [
 
 [[package]]
 name = "websocket"
-version = "0.26.2"
+version = "0.26.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "723abe6b75286edc51d8ecabb38a2353f62a9e9b0588998b59111474f1dcd637"
+checksum = "d0e2836502b48713d4e391e7e016df529d46e269878fe5d961b15a1fd6417f1a"
 dependencies = [
  "bytes 0.4.12",
  "futures 0.1.31",
