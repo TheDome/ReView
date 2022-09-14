@@ -15,7 +15,7 @@ QJsonBigEndian = []
 [dependencies]
 reqwest = { version = "0.11.9", features = ["default-tls", "json"] }
 env_logger = "0.9.0"
-websocket = "0.26.2"
+websocket = "0.26.5"
 json = "0.12.4"
 uuid = { version = "0.8.2", features = ["v4"] }
 glib = "0.14.8"
