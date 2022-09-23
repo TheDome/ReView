@@ -1,19 +1,23 @@
+use std::{borrow::Borrow, collections::HashMap, fmt::format};
+
 use async_trait::async_trait;
 use log::{debug, trace, warn};
-use reqwest::{Client, Response, StatusCode};
-use std::borrow::Borrow;
-use std::collections::HashMap;
+use reqwest::{Response, StatusCode};
 use uuid::Uuid;
+mod discovery;
 
-use crate::remarkable::constants::{
-    PROTOCOL, REMARKABLE_DEVICE_DESCRIPTION, REMARKABLE_LIVESYNC_DISCOVERY_PARAMS,
-    REMARKABLE_LIVESYNC_DISCOVERY_PATH, REMARKABLE_NOTIFICATION_DISCOVERY_PARAMS,
-    REMARKABLE_NOTIFICATION_DISCOVERY_PATH, REMARKABLE_SERVICE_BASE_API,
-    REMARKABLE_SESSION_TOKEN_NEW, REMARKABLE_SESSION_TOKEN_NEW_DEVICE,
-    REMARKABLE_STORAGE_DISCOVERY_PARAMS, REMARKABLE_STORAGE_DISCOVERY_PATH,
-    REMARKABLE_STORAGE_PATH, WS_PROTOCOL,
+use crate::remarkable::{
+    constants::{
+        PROTOCOL, REMARKABLE_DEVICE_DESCRIPTION, REMARKABLE_LIVESYNC_DISCOVERY_PARAMS,
+        REMARKABLE_LIVESYNC_DISCOVERY_PATH, REMARKABLE_NOTIFICATION_DISCOVERY_PARAMS,
+        REMARKABLE_NOTIFICATION_DISCOVERY_PATH, REMARKABLE_SERVICE_BASE_API,
+        REMARKABLE_SESSION_TOKEN_NEW, REMARKABLE_SESSION_TOKEN_NEW_DEVICE,
+        REMARKABLE_STORAGE_DISCOVERY_PARAMS, REMARKABLE_STORAGE_DISCOVERY_PATH,
+        REMARKABLE_STORAGE_PATH, WS_PROTOCOL,
+    },
+    tokens::discovery::discover_with_base,
+    BaseDomains, RMTokenInterface,
 };
-use crate::remarkable::{BaseDomains, RMTokenInterface};
 
 pub struct RMTokens {
     base_domains: BaseDomains,
@@ -26,84 +30,7 @@ impl RMTokens {
 }
 
 pub async fn discover() -> Result<BaseDomains, String> {
-    debug!("Performing service discovery");
-
-    let mut storage_url = PROTOCOL.to_string();
-    storage_url.push_str(REMARKABLE_SERVICE_BASE_API);
-    storage_url.push_str(REMARKABLE_STORAGE_DISCOVERY_PATH);
-
-    let mut notification_url = PROTOCOL.to_string();
-    notification_url.push_str(REMARKABLE_SERVICE_BASE_API);
-    notification_url.push_str(REMARKABLE_NOTIFICATION_DISCOVERY_PATH);
-
-    let mut livesync_url = PROTOCOL.to_string();
-    livesync_url.push_str(REMARKABLE_SERVICE_BASE_API);
-    livesync_url.push_str(REMARKABLE_LIVESYNC_DISCOVERY_PATH);
-
-    debug!(
-        "Requesting url storage: {}, notfication: {}, livesync: {}",
-        storage_url.to_string(),
-        notification_url.to_string(),
-        livesync_url.to_string()
-    );
-
-    let storage_client = Client::new();
-    let storage_builder = storage_client.get(&storage_url);
-    let storage_response = storage_builder
-        .query(&REMARKABLE_STORAGE_DISCOVERY_PARAMS)
-        .send();
-
-    let notification_client = Client::new();
-    let notification_builder = notification_client.get(&notification_url);
-    let notification_response = notification_builder
-        .query(&REMARKABLE_NOTIFICATION_DISCOVERY_PARAMS)
-        .send();
-
-    let livesync_client = Client::new();
-    let livesync_res = livesync_client
-        .get(&livesync_url)
-        .query(&REMARKABLE_LIVESYNC_DISCOVERY_PARAMS)
-        .send();
-
-    let extraction_result = match (
-        storage_response.await,
-        notification_response.await,
-        livesync_res.await,
-    ) {
-        (Ok(storage), Ok(notification), Ok(livesync)) => {
-            let sthost = get_host(storage.text().await.unwrap());
-            let lvhost = get_host(livesync.text().await.unwrap());
-            let nthost = get_host(notification.text().await.unwrap());
-
-            trace!("Got data: storage:{:?}", &sthost);
-            trace!("Got data: notification:{:?}", &nthost);
-            trace!("Got data: livesync:{:?}", &lvhost);
-
-            Ok((sthost, lvhost, nthost))
-        }
-        e => {
-            warn!("Error at loading remarkable servers");
-            debug!("{:?}", e);
-            Err("Error while connecting")
-        }
-    };
-
-    if extraction_result.is_err() {
-        return Err(extraction_result.err().unwrap().to_string());
-    };
-
-    let (sthost, lvhost, nthost) = extraction_result.unwrap();
-
-    let result = BaseDomains {
-        storage: PROTOCOL.to_owned() + &sthost.unwrap(),
-        notifications: WS_PROTOCOL.to_owned() + &nthost.unwrap(),
-        livesync: WS_PROTOCOL.to_owned() + &lvhost.unwrap_or("".into()),
-        sessions: BaseDomains::default().sessions,
-    };
-
-    debug!("Returning  {:?}", &result);
-
-    Ok(result)
+    discover_with_base(format!("{}{}", PROTOCOL, REMARKABLE_SERVICE_BASE_API)).await
 }
 
 #[async_trait]

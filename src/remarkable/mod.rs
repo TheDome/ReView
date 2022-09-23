@@ -1,5 +1,6 @@
-use crate::remarkable::constants::{PROTOCOL, REMARKABLE_SESSION_BASE_API};
 use async_trait::async_trait;
+
+use crate::remarkable::constants::{PROTOCOL, REMARKABLE_SESSION_BASE_API};
 
 #[derive(Debug, Clone)]
 pub struct BaseDomains {
@@ -38,6 +39,7 @@ pub trait RMTokenInterface {
     /// This token needs a special OTP obtained from the remearkable service
     async fn login(&self, otp: &str) -> Result<String, String>;
 
-    /// Checks if a session is still considered valid by performing a request to the remarkable API.
+    /// Checks if a session is still considered valid by performing a request to
+    /// the remarkable API.
     async fn session_okay(&self, session_token: &str) -> bool;
 }

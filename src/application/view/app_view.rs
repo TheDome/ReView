@@ -2,15 +2,20 @@ use std::sync::mpsc::Sender;
 
 use gio::{Action, ActionMapExt, Menu, SimpleAction};
 use glib::{clone, GString, Receiver};
-use gtk::prelude::*;
-use gtk::{AboutDialogExt, Builder, Button, Entry, Widget};
-use gtk::{HeaderBar, Label, MenuBar, MenuItem, WindowPosition};
+use gtk::{
+    prelude::*, AboutDialogExt, Builder, Button, Entry, HeaderBar, Label, MenuBar, MenuItem,
+    Widget, WindowPosition,
+};
 use log::{debug, info, trace, warn};
 use tokio::sync::mpsc::{UnboundedReceiver, UnboundedSender};
 
-use crate::application::model::app_controller::AppController;
-use crate::application::view::{APPLICATION_VERSION, MAIN_WINDOW_NAME};
-use crate::view::APP_WINDOWS_STRING;
+use crate::{
+    application::{
+        model::app_controller::AppController,
+        view::{APPLICATION_VERSION, MAIN_WINDOW_NAME},
+    },
+    view::APP_WINDOWS_STRING,
+};
 
 #[derive(Debug, Clone)]
 pub struct AppView {

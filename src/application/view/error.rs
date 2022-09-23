@@ -1,5 +1,4 @@
-use gtk::prelude::*;
-use gtk::{ButtonsType, DialogFlags, MessageDialog, MessageType, Window, WindowType};
+use gtk::{prelude::*, ButtonsType, DialogFlags, MessageDialog, MessageType, Window, WindowType};
 
 /// Displays an error message.
 pub fn show_error(title: &str, message: &str) {

@@ -1,4 +1,7 @@
-use std::time::{Duration, SystemTime, UNIX_EPOCH};
+use std::{
+    ops::Sub,
+    time::{Duration, SystemTime, UNIX_EPOCH},
+};
 
 use base64::decode;
 use json::parse;
@@ -104,96 +107,81 @@ impl Identifiable for Config {
     /// Will return None of not token can be found or the token is
     /// invalid
     fn get_session_id(&self) -> Result<String, String> {
-        if let Some(key) = &self.session_key {
-            debug!("Extracting auth0 id from session key");
-            trace!("Session key is: {}", key);
-            if let Some(main_part) = key.split(".").collect::<Vec<&str>>().get(1) {
-                let decoded = decode(main_part).map_err(|e| e.to_string())?;
+        let key = self.session_key.as_ref().ok_or("No session key found")?;
+        debug!("Extracting auth0 id from session key");
+        trace!("Session key is: {}", key);
+        if let Some(main_part) = key.split(".").collect::<Vec<&str>>().get(1) {
+            let decoded = decode(main_part).map_err(|e| e.to_string())?;
 
-                let user_data = String::from_utf8(decoded).map_err(|e| e.to_string())?;
+            let user_data = String::from_utf8(decoded).map_err(|e| e.to_string())?;
 
-                trace!("User data is: {:?}", user_data);
+            trace!("User data is: {:?}", user_data);
 
-                let object = json::parse(user_data.as_ref());
+            let object = json::parse(user_data.as_ref());
 
-                trace!("User data is: {:?}", object);
+            trace!("User data is: {:?}", object);
 
-                return if let Ok(data) = object {
-                    let profile = &data["auth0-profile"];
-                    let profile = &profile["UserID"];
+            let data = object.as_ref().map_err(|e| {
+                debug!(
+                    "Failed to parse user data: {} -> {:?}",
+                    object.as_ref().unwrap_err(),
+                    user_data
+                );
+                "Failed to parse user data".to_string()
+            })?;
 
-                    if profile.to_string() == "null" {
-                        return Err(String::from("No user id found"));
-                    }
+            let profile = &data["auth0-profile"];
+            let profile = &profile["UserID"];
 
-                    debug!("Using profile: {}", profile);
-                    Ok(profile.to_string())
-                } else {
-                    debug!(
-                        "Failed to parse user data: {} -> {:?}",
-                        object.unwrap_err(),
-                        user_data
-                    );
-                    return Err(String::from("Failed to parse user data"));
-                };
+            if profile.to_string() == "null" {
+                return Err(("No user id found").into());
             }
-            debug!("Failed to extract main part");
+
+            debug!("Using profile: {}", profile);
+            return Ok(profile.to_string());
         }
 
-        Err(String::from("No session key found"))
+        debug!("Failed to extract main part");
+
+        Err("Failed to extract session id".into())
     }
 }
 
 impl Expirable for Config {
     fn get_expiry(&self) -> Result<Duration, String> {
-        let token = &self.session_key;
-        if token.is_none() {
-            return Err(String::from("No session key found"));
-        }
-        let token = token.as_ref().unwrap();
+        let token = &self.session_key.as_ref().ok_or("No session key found")?;
+
         let token = token.split(".").collect::<Vec<&str>>();
         let main_part = token.get(1);
 
-        let main_part = match main_part {
-            Some(v) => v,
-            None => {
-                debug!("Failed to extract main part from token");
-                return Err(String::from("Failed to extract main part from token"));
-            }
-        };
+        let main_part = main_part.ok_or("No main part found")?;
 
         let decoded = decode(main_part);
 
-        let decoded = match decoded {
-            Ok(v) => v,
-            Err(e) => {
-                debug!("Failed to decode token: {}", e);
-                return Err(String::from("Failed to decode token"));
-            }
-        };
+        let decoded = decoded.map_err(|e| e.to_string())?;
 
         let json = parse(&String::from_utf8(decoded).unwrap());
 
         if let Ok(json) = json {
             let exp = json["exp"].as_u64();
-            let exp = exp.unwrap();
+
+            let exp = Duration::from_secs(exp.unwrap());
             let now = SystemTime::now();
-            let exp = now.checked_add(Duration::from_secs(exp));
-            let exp = exp.unwrap();
-            let exp = exp.duration_since(UNIX_EPOCH).unwrap();
-            return Ok(exp);
+            let now = now.duration_since(UNIX_EPOCH).unwrap();
+
+            return Ok(exp.sub(now));
         }
 
-        Err(String::from("Failed to parse token"))
+        Err("Failed to parse token".into())
     }
 }
 impl UnserializableConfig for Config {}
 
 #[cfg(test)]
 mod tests {
+    use std::{ffi::OsStr, path::PathBuf};
+
     use gio::LoadableIconExt;
-    use std::ffi::OsStr;
-    use std::path::PathBuf;
 
     use super::*;
 
@@ -255,5 +243,76 @@ mod tests {
 
         assert_eq!(res.session_key, Some("session_key".into()));
         assert_eq!(res.device_key, Some("device_key".into()));
+    }
+
+    #[test]
+    fn test_expiry() {
+        let exp_in_10 = format!(
+            "{{\"exp\": {}}}",
+            SystemTime::now()
+                .duration_since(UNIX_EPOCH)
+                .unwrap()
+                .as_secs() +
+                10
+        );
+        let token = format!(
+            "{}.{}.{}",
+            base64::encode("{\"sig\": 100}"),
+            base64::encode(exp_in_10),
+            base64::encode("{\"sig\": 100}")
+        );
+
+        let mut config = Config {
+            session_key: Some(token.into()),
+            device_key: None,
+        };
+
+        let expiry = config.get_expiry().unwrap();
+
+        assert!(expiry.as_secs() < 11, "Expiry should be imminent");
+    }
+
+    #[test]
+    fn test_get_session_key() {
+        let mut config = Config {
+            session_key: Some("session_key".into()),
+            device_key: None,
+        };
+
+        assert_eq!(config.get_session_key(), Ok("session_key".into()));
+    }
+
+    #[test]
+    fn test_get_device_key() {
+        let mut config = Config {
+            session_key: None,
+            device_key: Some("device_key".into()),
+        };
+
+        assert_eq!(config.get_device_key(), Ok("device_key".into()));
+    }
+
+    #[test]
+    fn test_set_session_key() {
+        let mut config = Config {
+            session_key: None,
+            device_key: None,
+        };
+
+        config.set_session_key("session_key".into());
+
+        assert_eq!(config.session_key, Some("session_key".into()));
+    }
+
+    #[test]
+    fn test_set_device_key() {
+        let mut config = Config {
+            session_key: None,
+            device_key: None,
+        };
+
+        config.set_device_key("device_key".into());
+
+        assert_eq!(config.device_key, Some("device_key".into()));
     }
 }

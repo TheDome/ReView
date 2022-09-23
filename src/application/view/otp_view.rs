@@ -1,12 +1,12 @@
-use crate::view::APP_WINDOWS_STRING;
 use gio::ActionMapExt;
 use glib::Receiver;
-use gtk::prelude::BuilderExtManual;
 use gtk::{
-    Button, ButtonExt, Entry, EntryExt, GtkWindowExt, Inhibit, Label, LabelExt, WidgetExt,
-    WindowPosition,
+    prelude::BuilderExtManual, Button, ButtonExt, Entry, EntryExt, GtkWindowExt, Inhibit, Label,
+    LabelExt, WidgetExt, WindowPosition,
 };
 use log::{debug, warn};
+
+use crate::view::APP_WINDOWS_STRING;
 
 pub struct OtpView {
     otp_dialog: gtk::Window,
@@ -52,7 +52,8 @@ impl OtpView {
         self.otp_entry.get_text().to_string()
     }
 
-    /// Returns a channel where the value of the otp_entry will be sent when the button has been pressed
+    /// Returns a channel where the value of the otp_entry will be sent when the
+    /// button has been pressed
     pub fn connect_otp_channel(&self) -> Receiver<String> {
         let (tx, rx) = glib::MainContext::channel(glib::PRIORITY_DEFAULT);
         let entry = self.otp_entry.clone();

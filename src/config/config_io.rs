@@ -1,12 +1,13 @@
-use std::fs;
-use std::fs::File;
-use std::io::Write;
-use std::path::{Path, PathBuf};
+use std::{
+    fs,
+    fs::File,
+    io::Write,
+    path::{Path, PathBuf},
+};
 
 use directories::BaseDirs;
 
-use crate::config::config::Config as ConfigStruct;
-use crate::config::{Config, KeyStore, Serializable};
+use crate::config::{config::Config as ConfigStruct, Config, KeyStore, Serializable};
 
 const CONFIG_FILE_PATH: &str = "rmapi";
 const CONFIG_FILE_NAME: &str = "rmapi.conf";

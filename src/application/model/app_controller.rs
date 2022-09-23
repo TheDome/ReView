@@ -1,18 +1,22 @@
-use std::sync::mpsc::channel;
-use std::sync::{Arc, Mutex};
+use std::sync::{mpsc::channel, Arc, Mutex};
 
 use futures_util::FutureExt;
 use gio::prelude::*;
 use glib::clone;
 use gtk::{Application, DialogExt, EditableExt, GtkApplicationExt, GtkWindowExt};
 use log::{debug, info, trace};
-use tokio::runtime::Runtime;
-use tokio::sync::mpsc::{unbounded_channel, UnboundedReceiver};
+use tokio::{
+    runtime::Runtime,
+    sync::mpsc::{unbounded_channel, UnboundedReceiver},
+};
 
-use crate::application::model::app_model::AppModel;
-use crate::application::model::AppModelled;
-use crate::application::view::app_view::{build_about_dialog, AppView};
-use crate::view::otp_view::OtpView;
+use crate::{
+    application::{
+        model::{app_model::AppModel, AppModelled},
+        view::app_view::{build_about_dialog, AppView},
+    },
+    view::otp_view::OtpView,
+};
 
 pub struct AppController {
     model: Arc<Mutex<Box<dyn AppModelled>>>,

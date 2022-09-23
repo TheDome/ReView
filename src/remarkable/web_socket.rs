@@ -1,26 +1,29 @@
-use std::io::ErrorKind;
-use std::sync::mpsc;
-use std::sync::mpsc::Receiver;
-use std::thread::JoinHandle;
+use std::{
+    io::ErrorKind,
+    sync::{mpsc, mpsc::Receiver},
+    thread::JoinHandle,
+};
 
-use crate::remarkable::BaseDomains;
 use futures_util::StreamExt;
 use log::{debug, error, trace, warn};
 use tokio::net::TcpStream;
-use tokio_tungstenite::tungstenite::client::IntoClientRequest;
-use tokio_tungstenite::tungstenite::handshake::client::Response;
-use tokio_tungstenite::tungstenite::protocol::WebSocketConfig;
-use tokio_tungstenite::tungstenite::Message::Text;
-use tokio_tungstenite::tungstenite::{http, Error};
 use tokio_tungstenite::{
-    connect_async, connect_async_with_config, MaybeTlsStream, WebSocketStream,
+    connect_async, connect_async_with_config,
+    tungstenite::{
+        client::IntoClientRequest, handshake::client::Response, http, protocol::WebSocketConfig,
+        Error, Message::Text,
+    },
+    MaybeTlsStream, WebSocketStream,
 };
 
-use crate::remarkable::constants::{
-    REMARKABLE_LIVESYNC_DISCOVERY_PATH, REMARKABLE_LIVEVIEW_SUBSCRIBER_PATH,
-    REMARKABLE_NOTIFICATION_SOCKET_PATH,
+use crate::remarkable::{
+    constants::{
+        REMARKABLE_LIVESYNC_DISCOVERY_PATH, REMARKABLE_LIVEVIEW_SUBSCRIBER_PATH,
+        REMARKABLE_NOTIFICATION_SOCKET_PATH,
+    },
+    web_socket::SocketEvent::LiveSyncStarted,
+    BaseDomains,
 };
-use crate::remarkable::web_socket::SocketEvent::LiveSyncStarted;
 
 const PROTOCOL: &str = "wss://";
 

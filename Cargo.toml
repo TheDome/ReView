@@ -35,8 +35,8 @@ version = "0.16.0"
 features = ["native-tls"]
 
 [dependencies.tokio]
-version = "1.15.0"
-features = [ "rt-multi-thread"]
+version = "1.21.1"
+features = [ "rt-multi-thread", "macros"]
 
 [dependencies.gtk]
 version = "^0"
@@ -47,9 +47,9 @@ version = "0.9.1"
 features = ["v2_44"]
 
 [dependencies.log]
-version = "0.4.14"
+version = "0.4.17"
 features = ["max_level_trace", "release_max_level_warn"]
 
 [dev-dependencies]
 num = "0.4"
-mockito = "0.30.0"
+httpmock = { version = "0.6", features = ["color"] }

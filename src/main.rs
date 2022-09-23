@@ -1,15 +1,16 @@
-use std::env::args;
-use std::os::unix::prelude::OsStringExt;
+use std::{env::args, os::unix::prelude::OsStringExt};
 
 use gio::prelude::*;
 use log::{debug, info};
 use tokio::runtime::Runtime;
 
-use crate::application::view::APPLICATION_IDENTIFIER;
-use crate::config::config::Config;
-use crate::config::config_io::{load_config_from_file, resolve_config_path};
-
-use crate::application::{model, view};
+use crate::{
+    application::{model, view, view::APPLICATION_IDENTIFIER},
+    config::{
+        config::Config,
+        config_io::{load_config_from_file, resolve_config_path},
+    },
+};
 
 mod application;
 mod config;

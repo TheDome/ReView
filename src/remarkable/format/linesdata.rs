@@ -1,12 +1,14 @@
 use std::io::{Error, ErrorKind};
 
 use log::{debug, trace, warn};
-use qt_json::elements::{JsonBaseValue, JsonValue};
-use qt_json::QJSONDocument;
+use qt_json::{
+    elements::{JsonBaseValue, JsonValue},
+    QJSONDocument,
+};
 
-use crate::remarkable::format::data::PenColor::BLACK;
-use crate::remarkable::format::data::PenType::TiltPencil;
-use crate::remarkable::format::data::{Line, PenColor, PenType, Point};
+use crate::remarkable::format::data::{
+    Line, PenColor, PenColor::BLACK, PenType, PenType::TiltPencil, Point,
+};
 
 struct LiveViewUpdate {
     page: u8,

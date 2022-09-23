@@ -1,20 +1,28 @@
-use std::fmt::Error;
-use std::pin::Pin;
-use std::rc::Rc;
-use std::task::Context;
-use std::time::{Duration, UNIX_EPOCH};
+use std::{
+    fmt::Error,
+    pin::Pin,
+    rc::Rc,
+    task::Context,
+    time::{Duration, UNIX_EPOCH},
+};
 
 use log::{debug, info, trace};
-use tokio::runtime::Runtime;
-use tokio::sync::mpsc::{channel, Receiver, Sender};
-use tokio::task::futures;
+use tokio::{
+    runtime::Runtime,
+    sync::mpsc::{channel, Receiver, Sender},
+    task::futures,
+};
 
-use crate::application::model::AppModelled;
-use crate::config::config::Config;
-use crate::config::{Expirable, UnserializableConfig};
-use crate::remarkable::tokens::{discover, RMTokens};
-use crate::remarkable::web_socket::{await_message, create_socket, get_livesync_url};
-use crate::remarkable::{tokens, BaseDomains, RMTokenInterface};
+use crate::{
+    application::model::AppModelled,
+    config::{config::Config, Expirable, UnserializableConfig},
+    remarkable::{
+        tokens,
+        tokens::{discover, RMTokens},
+        web_socket::{await_message, create_socket, get_livesync_url},
+        BaseDomains, RMTokenInterface,
+    },
+};
 
 pub struct AppModel {
     config: Box<dyn UnserializableConfig>,
@@ -165,8 +173,9 @@ impl AppModelled for AppModel {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use tokio::runtime::Runtime;
+
+    use super::*;
 
     fn detect_no_session_token() {}
 }
