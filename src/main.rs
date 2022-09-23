@@ -2,7 +2,6 @@ use std::{env::args, os::unix::prelude::OsStringExt};
 
 use gio::prelude::*;
 use log::{debug, info};
-use tokio::runtime::Runtime;
 
 use crate::{
     application::{model, view, view::APPLICATION_IDENTIFIER},

@@ -1,29 +1,13 @@
-use std::{
-    io::ErrorKind,
-    sync::{mpsc, mpsc::Receiver},
-    thread::JoinHandle,
-};
-
 use futures_util::StreamExt;
 use log::{debug, error, trace, warn};
 use tokio::net::TcpStream;
 use tokio_tungstenite::{
-    connect_async, connect_async_with_config,
-    tungstenite::{
-        client::IntoClientRequest, handshake::client::Response, http, protocol::WebSocketConfig,
-        Error, Message::Text,
-    },
+    connect_async,
+    tungstenite::{client::IntoClientRequest, http, Error, Message::Text},
     MaybeTlsStream, WebSocketStream,
 };
 
-use crate::remarkable::{
-    constants::{
-        REMARKABLE_LIVESYNC_DISCOVERY_PATH, REMARKABLE_LIVEVIEW_SUBSCRIBER_PATH,
-        REMARKABLE_NOTIFICATION_SOCKET_PATH,
-    },
-    web_socket::SocketEvent::LiveSyncStarted,
-    BaseDomains,
-};
+use crate::remarkable::{constants::REMARKABLE_NOTIFICATION_SOCKET_PATH, BaseDomains};
 
 const PROTOCOL: &str = "wss://";
 
@@ -65,7 +49,7 @@ pub async fn create_socket(
 }
 
 pub async fn await_message(
-    mut socket: &mut WebSocketStream<MaybeTlsStream<TcpStream>>,
+    socket: &mut WebSocketStream<MaybeTlsStream<TcpStream>>,
 ) -> Result<SocketEvent, Error> {
     let msg = socket.next().await;
 

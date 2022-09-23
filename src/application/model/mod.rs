@@ -1,6 +1,6 @@
 use tokio::sync::mpsc::Sender;
 
-use crate::config::{Config, Expirable, Identifiable, KeyStore, UnserializableConfig};
+use crate::config::UnserializableConfig;
 
 pub mod app_controller;
 pub mod app_model;

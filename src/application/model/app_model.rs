@@ -1,16 +1,7 @@
-use std::{
-    fmt::Error,
-    pin::Pin,
-    rc::Rc,
-    task::Context,
-    time::{Duration, UNIX_EPOCH},
-};
-
-use log::{debug, info, trace};
+use log::{debug, trace};
 use tokio::{
     runtime::Runtime,
     sync::mpsc::{channel, Receiver, Sender},
-    task::futures,
 };
 
 use crate::{
@@ -18,7 +9,7 @@ use crate::{
     config::{config::Config, Expirable, UnserializableConfig},
     remarkable::{
         tokens,
-        tokens::{discover, RMTokens},
+        tokens::discover,
         web_socket::{await_message, create_socket, get_livesync_url},
         BaseDomains, RMTokenInterface,
     },
@@ -88,14 +79,14 @@ impl AppModelled for AppModel {
 
         trace!("Session token is: {:?}", &token);
 
-        let mut session_key;
+        let session_key;
         if let Ok(device_token) = token {
             session_key = device_token;
         } else {
             return Err("No session key found".into());
         }
 
-        let mut rx = &self.termination_receiver;
+        let _rx = &self.termination_receiver;
 
         let base_domains = self.domains.clone();
 
@@ -103,7 +94,7 @@ impl AppModelled for AppModel {
             debug!("Searching using device key {:?}", device_key);
 
             let url = get_livesync_url(&base_domains);
-            let mut client = create_socket(&url, &session_key).await;
+            let client = create_socket(&url, &session_key).await;
 
             if client.is_err() {
                 return;
@@ -112,7 +103,7 @@ impl AppModelled for AppModel {
             let mut client = client.unwrap();
 
             loop {
-                let message = await_message(&mut client).await;
+                let _message = await_message(&mut client).await;
                 debug!("Searching for {:?}", device_key);
             }
         });
@@ -165,7 +156,7 @@ impl AppModelled for AppModel {
             }
         }
 
-        let key = self.refresh_session_token()?;
+        let _key = self.refresh_session_token()?;
 
         return Err("No session key found".into());
     }
@@ -173,9 +164,6 @@ impl AppModelled for AppModel {
 
 #[cfg(test)]
 mod tests {
-    use tokio::runtime::Runtime;
-
-    use super::*;
 
     fn detect_no_session_token() {}
 }

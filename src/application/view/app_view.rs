@@ -1,19 +1,9 @@
-use std::sync::mpsc::Sender;
-
-use gio::{Action, ActionMapExt, Menu, SimpleAction};
-use glib::{clone, GString, Receiver};
-use gtk::{
-    prelude::*, AboutDialogExt, Builder, Button, Entry, HeaderBar, Label, MenuBar, MenuItem,
-    Widget, WindowPosition,
-};
-use log::{debug, info, trace, warn};
-use tokio::sync::mpsc::{UnboundedReceiver, UnboundedSender};
+use gio::Menu;
+use gtk::{prelude::*, AboutDialogExt, MenuItem};
+use log::debug;
 
 use crate::{
-    application::{
-        model::app_controller::AppController,
-        view::{APPLICATION_VERSION, MAIN_WINDOW_NAME},
-    },
+    application::view::{APPLICATION_VERSION, MAIN_WINDOW_NAME},
     view::APP_WINDOWS_STRING,
 };
 

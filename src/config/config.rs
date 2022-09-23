@@ -121,7 +121,7 @@ impl Identifiable for Config {
 
             trace!("User data is: {:?}", object);
 
-            let data = object.as_ref().map_err(|e| {
+            let data = object.as_ref().map_err(|_e| {
                 debug!(
                     "Failed to parse user data: {} -> {:?}",
                     object.as_ref().unwrap_err(),
@@ -179,15 +179,12 @@ impl UnserializableConfig for Config {}
 
 #[cfg(test)]
 mod tests {
-    use std::{ffi::OsStr, path::PathBuf};
-
-    use gio::LoadableIconExt;
 
     use super::*;
 
     #[test]
     fn test_config_return_format() {
-        let mut config = Config {
+        let config = Config {
             device_key: Some(String::from("device_key")),
             session_key: Some(String::from("session_key")),
         };
@@ -211,7 +208,7 @@ mod tests {
 
     #[test]
     fn get_auth0_id() {
-        let mut config = Config {
+        let config = Config {
             session_key: Some("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.\
         eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJhdXRoMC1wcm9maWxlIjp7IlVzZXJJRCI6InRlc3QifX0.\
         2Bmk995Tp6wp_8j2HsGtaEXxDyz3GTUh4EGfAemTHA0".into()),
@@ -223,7 +220,7 @@ mod tests {
 
     #[test]
     fn get_auth0_id_no_b64() {
-        let mut config = Config {
+        let config = Config {
             session_key: Some("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.\
         eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJhdXRoMC1wcm9maWxlIjp7IlVzZXJJRCI6InRlc3QifX5.\
         2Bmk995Tp6wp_8j2HsGtaEXxDyz3GTUh4EGfAemTHA0".into()),
@@ -262,7 +259,7 @@ mod tests {
             base64::encode("{\"sig\": 100}")
         );
 
-        let mut config = Config {
+        let config = Config {
             session_key: Some(token.into()),
             device_key: None,
         };
@@ -274,7 +271,7 @@ mod tests {
 
     #[test]
     fn test_get_session_key() {
-        let mut config = Config {
+        let config = Config {
             session_key: Some("session_key".into()),
             device_key: None,
         };
@@ -284,7 +281,7 @@ mod tests {
 
     #[test]
     fn test_get_device_key() {
-        let mut config = Config {
+        let config = Config {
             session_key: None,
             device_key: Some("device_key".into()),
         };

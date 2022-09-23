@@ -1,18 +1,13 @@
-use std::sync::{mpsc::channel, Arc, Mutex};
+use std::sync::{Arc, Mutex};
 
-use futures_util::FutureExt;
 use gio::prelude::*;
 use glib::clone;
-use gtk::{Application, DialogExt, EditableExt, GtkApplicationExt, GtkWindowExt};
-use log::{debug, info, trace};
-use tokio::{
-    runtime::Runtime,
-    sync::mpsc::{unbounded_channel, UnboundedReceiver},
-};
+use gtk::{Application, DialogExt, GtkApplicationExt, GtkWindowExt};
+use log::{debug, trace};
 
 use crate::{
     application::{
-        model::{app_model::AppModel, AppModelled},
+        model::AppModelled,
         view::app_view::{build_about_dialog, AppView},
     },
     view::otp_view::OtpView,
@@ -107,7 +102,7 @@ impl AppController {
     }
 
     fn check_and_show_login_dialog(&mut self) {
-        let mut model = self.model.clone();
+        let model = self.model.clone();
         let logged = model.lock().unwrap().is_logged_in();
         debug!("User is logged in: {}", logged);
 
@@ -121,7 +116,7 @@ impl AppController {
         }
     }
 
-    fn connect_otp_validation(&self, mut channel: glib::Receiver<String>) {
+    fn connect_otp_validation(&self, channel: glib::Receiver<String>) {
         trace!("app_controller::connect_otp_validation()");
 
         let model = self.model.clone();

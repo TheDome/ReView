@@ -1,13 +1,11 @@
 use std::{
     fs,
-    fs::File,
-    io::Write,
     path::{Path, PathBuf},
 };
 
 use directories::BaseDirs;
 
-use crate::config::{config::Config as ConfigStruct, Config, KeyStore, Serializable};
+use crate::config::{config::Config as ConfigStruct, Serializable};
 
 const CONFIG_FILE_PATH: &str = "rmapi";
 const CONFIG_FILE_NAME: &str = "rmapi.conf";
@@ -48,7 +46,7 @@ pub fn write_config(_conf: &dyn Serializable, _path: &Path) -> Result<(), String
 pub fn load_config_from_file(path: &str) -> Result<ConfigStruct, String> {
     let file = fs::read_to_string(path).map_err(|e| e.to_string())?;
 
-    let mut config = ConfigStruct::deserialize(file.as_str())?;
+    let config = ConfigStruct::deserialize(file.as_str())?;
 
     Ok(config)
 }
