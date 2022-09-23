@@ -57,7 +57,7 @@ impl AppController {
         quit.connect_activate(clone!(@strong window => move |_, _| {
             debug!("Quit clicked");
             window.close();
-            channel.send(());
+            let _ =channel.send(());
         }));
 
         let actions = vec![about, quit];
@@ -98,7 +98,7 @@ impl AppController {
     pub fn start_search(&mut self) {
         debug!("Searching");
 
-        self.model.lock().unwrap().start_search();
+        let _ = self.model.lock().unwrap().start_search();
     }
 
     fn check_and_show_login_dialog(&mut self) {
@@ -133,7 +133,7 @@ impl AppController {
                 Ok(_) => {
                     debug!("OTP Validation passed!");
                     otp_view.close_login_dialog();
-                    model.lock().unwrap().start_search();
+                    let _ = model.lock().unwrap().start_search();
                 }
                 Err(e) => {
                     debug!("OTP Validation failed: {}", e);

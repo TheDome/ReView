@@ -6,7 +6,7 @@ use tokio::{
 
 use crate::{
     application::model::AppModelled,
-    config::{config::Config, Expirable, UnserializableConfig},
+    config::{config::Config, UnserializableConfig},
     remarkable::{
         tokens,
         tokens::discover,
