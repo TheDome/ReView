@@ -160,7 +160,6 @@ mod test {
 
     #[tokio::test]
     async fn session_token_new() {
-        env_logger::try_init();
         let server = httpmock::MockServer::start();
         let domains = BaseDomains {
             notifications: server.base_url(),
@@ -186,7 +185,6 @@ mod test {
 
     #[tokio::test]
     async fn session_token_ok() {
-        env_logger::try_init();
         let server = httpmock::MockServer::start();
         let domains = BaseDomains {
             notifications: server.base_url(),
