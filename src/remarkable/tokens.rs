@@ -125,3 +125,88 @@ async fn request2result(request: Response) -> Result<String, String> {
         },
     }
 }
+
+#[cfg(test)]
+mod test {
+    use httpmock;
+
+    use super::*;
+
+    #[tokio::test]
+    async fn login() {
+        let server = httpmock::MockServer::start();
+        let domains = BaseDomains {
+            notifications: server.base_url(),
+            storage: server.base_url(),
+            sessions: server.base_url(),
+            livesync: server.base_url(),
+        };
+
+        server.mock(|when, then| {
+            when.method("POST")
+                .path(REMARKABLE_SESSION_TOKEN_NEW_DEVICE)
+                .header("authorization", "Bearer");
+
+            then.status(200)
+                .header("Content-Type", "application/json")
+                .body(json::stringify("OK"));
+        });
+
+        let token = RMTokens::new(domains);
+
+        let res = token.login("1234").await;
+        assert_eq!(res.is_ok(), true);
+    }
+
+    #[tokio::test]
+    async fn session_token_new() {
+        env_logger::try_init();
+        let server = httpmock::MockServer::start();
+        let domains = BaseDomains {
+            notifications: server.base_url(),
+            storage: server.base_url(),
+            sessions: server.base_url(),
+            livesync: server.base_url(),
+        };
+
+        server.mock(|when, then| {
+            when.method("POST")
+                .path(REMARKABLE_SESSION_TOKEN_NEW)
+                .header("Authorization", "Bearer 1234");
+            then.status(200)
+                .header("Content-Type", "application/json")
+                .body(json::stringify("OK"));
+        });
+
+        let token = RMTokens::new(domains);
+
+        let res = token.create_session_token("1234").await;
+        assert_eq!(res.is_ok(), true);
+    }
+
+    #[tokio::test]
+    async fn session_token_ok() {
+        env_logger::try_init();
+        let server = httpmock::MockServer::start();
+        let domains = BaseDomains {
+            notifications: server.base_url(),
+            storage: server.base_url(),
+            sessions: server.base_url(),
+            livesync: server.base_url(),
+        };
+
+        server.mock(|when, then| {
+            when.method("GET")
+                .path(REMARKABLE_STORAGE_PATH)
+                .header("authorization", "Bearer 1234");
+            then.status(200)
+                .header("Content-Type", "application/json")
+                .body(json::stringify("OK"));
+        });
+
+        let token = RMTokens::new(domains);
+
+        let res = token.session_okay("1234").await;
+        assert_eq!(res, true);
+    }
+}
