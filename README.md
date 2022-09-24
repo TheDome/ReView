@@ -1,5 +1,7 @@
 # ReView
 
+[![codecov](https://codecov.io/gh/TheDome/review/branch/develop/graph/badge.svg?token=MRVPOSV53V)](https://codecov.io/gh/TheDome/review)
+
 An unofficial ReMarkable viewing client written in Rust
 
 This application is intended to show a live version of the Remarkable on your screen.

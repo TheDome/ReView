@@ -1,12 +1,14 @@
 use std::io::{Error, ErrorKind};
 
 use log::{debug, trace, warn};
+use qt_json::{
+    elements::{JsonBaseValue, JsonValue},
+    QJSONDocument,
+};
 
-use crate::qt_json::elements::{JsonBaseValue, JsonValue};
-use crate::qt_json::q_json_document::QJSONDocument;
-use crate::remarkable::format::data::PenColor::{BLACK};
-use crate::remarkable::format::data::PenType::TiltPencil;
-use crate::remarkable::format::data::{Line, PenColor, PenType, Point};
+use crate::remarkable::format::data::{
+    Line, PenColor, PenColor::BLACK, PenType, PenType::TiltPencil, Point,
+};
 
 struct LiveViewUpdate {
     page: u8,
@@ -106,5 +108,67 @@ fn parse_to_number(val: Option<&JsonValue>) -> Result<&f64, Error> {
             ErrorKind::InvalidData,
             format!("Expected an f64. Got: {:?}", v),
         )),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use log::info;
+    use num::abs;
+
+    use super::*;
+
+    #[test]
+    fn test_example() {
+        info!("Starting test");
+
+        let data = include_bytes!("example.bin");
+
+        let _reader = std::io::Cursor::new(data);
+
+        let line = parse_binary_live_lines(data.to_vec());
+
+        assert!(
+            line.is_ok(),
+            "Line expected to be parsed correctly: Got: {:?}",
+            line
+        );
+
+        let line = line.unwrap();
+
+        assert_eq!(line.brush, PenType::TiltPencil);
+        assert_eq!(line.color, BLACK);
+        assert_eq!(line.points.len(), 81);
+
+        let p0 = &line.points[0];
+
+        let x = 1105.065673828125;
+        let y = 55.36293411254883;
+
+        assert!(abs(p0.x - x) < 0.05, "X should be {}, is {}", x, p0.x);
+        assert!(abs(p0.y - y) < 0.05, "X should be {}, is {}", y, p0.y);
+    }
+
+    #[test]
+    fn test_example_1() {
+        let data = include_bytes!("example1.bin");
+
+        let line = parse_binary_live_lines(data.to_vec());
+
+        assert!(line.is_ok());
+
+        let line = line.unwrap();
+
+        assert_eq!(line.points.len(), 169);
+        assert_eq!(line.brush, PenType::SharpPencil);
+        assert_eq!(line.color, BLACK);
+
+        let p0 = &line.points[0];
+
+        let x = 605.072021484375;
+        let y = 482.8433837890625;
+
+        assert!(abs(p0.x - x) < 0.05, "X should be {}, is {}", x, p0.x);
+        assert!(abs(p0.y - y) < 0.05, "X should be {}, is {}", y, p0.y);
     }
 }

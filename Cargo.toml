@@ -2,33 +2,41 @@
 name = "ReView"
 version = "0.0.0"
 authors = ["Dominic Heun <dominic.heun@gmx.net>"]
-edition = "2018"
+edition = "2021"
+license = "Apache-2.0"
 build = "build.rs"
 repository = "https://github.com/thedome/review"
 description = "A simple program to use the remarkable live view feature"
 readme = "README.md"
 
+[[bin]]
+name = "ReView"
+path = "src/main.rs"
+
 [features]
 session_from_config = []
-QJsonBigEndian = []
 
 [dependencies]
 reqwest = { version = "0.11.9", features = ["default-tls", "json"] }
 env_logger = "0.9.0"
-websocket = "0.26.2"
 json = "0.12.4"
 uuid = { version = "0.8.2", features = ["v4"] }
-glib = "0.14.8"
+glib = "0.15.12"
 cairo-rs = { version = "^0", features = ["v1_16", "pdf"] }
-gdk = "0.15.1"
-byteorder = "1.4.3"
-num = "0.4"
-num-traits = "0.2"
-num-derive = "0.3"
+gdk = "0.15.4"
+qt-json = "1.0.2"
+directories = "4.0.1"
+base64 = "0.13.0"
+futures-util = "0.3.18"
+async-trait = "0.1.52"
+
+[dependencies.tokio-tungstenite]
+version = "0.16.0"
+features = ["native-tls"]
 
 [dependencies.tokio]
-version = "1.15.0"
-features = ["macros", "rt-multi-thread"]
+version = "1.21.1"
+features = [ "rt-multi-thread", "macros"]
 
 [dependencies.gtk]
 version = "^0"
@@ -39,6 +47,9 @@ version = "0.9.1"
 features = ["v2_44"]
 
 [dependencies.log]
-version = "0.4.14"
+version = "0.4.17"
 features = ["max_level_trace", "release_max_level_warn"]
 
+[dev-dependencies]
+num = "0.4"
+httpmock = { version = "0.6", features = ["color"] }

@@ -1,0 +1,11 @@
+unstable_features = true
+reorder_imports = true
+binop_separator = "Back"
+combine_control_expr = false
+imports_granularity = "Crate"
+normalize_doc_attributes = true
+group_imports = "StdExternalCrate"
+wrap_comments = true
+
+newline_style = "Unix"
+tab_spaces = 4
