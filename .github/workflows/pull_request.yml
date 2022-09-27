@@ -166,6 +166,6 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v3
-      - uses: fastify/github-action-merge-dependabot@v3.3.1
+      - uses: fastify/github-action-merge-dependabot@v3.3.2
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
