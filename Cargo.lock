@@ -14,7 +14,7 @@ dependencies = [
  "futures-util",
  "gdk 0.16.0",
  "gio 0.9.1",
- "glib 0.15.12",
+ "glib 0.16.0",
  "gtk",
  "httpmock",
  "json",
@@ -1008,26 +1008,6 @@ dependencies = [
 
 [[package]]
 name = "glib"
-version = "0.15.12"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "edb0306fbad0ab5428b0ca674a23893db909a98582969c9b537be4ced78c505d"
-dependencies = [
- "bitflags",
- "futures-channel",
- "futures-core",
- "futures-executor",
- "futures-task",
- "glib-macros 0.15.11",
- "glib-sys 0.15.1",
- "gobject-sys 0.15.1",
- "libc",
- "once_cell",
- "smallvec",
- "thiserror",
-]
-
-[[package]]
-name = "glib"
 version = "0.16.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9d9d01334b55e33e9189fa956dde9885e5439dfa6c448f4d724e222addbf06f2"
@@ -1066,21 +1046,6 @@ dependencies = [
 
 [[package]]
 name = "glib-macros"
-version = "0.15.11"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "25a68131a662b04931e71891fb14aaf65ee4b44d08e8abc10f49e77418c86c64"
-dependencies = [
- "anyhow",
- "heck 0.4.0",
- "proc-macro-crate 1.1.0",
- "proc-macro-error",
- "proc-macro2",
- "quote",
- "syn",
-]
-
-[[package]]
-name = "glib-macros"
 version = "0.16.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e195c1311fa6b04d7b896ea39385f6bd60ef5d25bf74a7c11c8c3f94f6c1a572"
@@ -1102,16 +1067,6 @@ checksum = "c7e9b997a66e9a23d073f2b1abb4dbfc3925e0b8952f67efd8d9b6e168e4cdc1"
 dependencies = [
  "libc",
  "system-deps 1.3.2",
-]
-
-[[package]]
-name = "glib-sys"
-version = "0.15.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c668102c6e15e0a7f6b99b59f602c2e806967bb86414f617b77e19b1de5b3fac"
-dependencies = [
- "libc",
- "system-deps 6.0.0",
 ]
 
 [[package]]
@@ -1145,17 +1100,6 @@ dependencies = [
  "glib-sys 0.10.1",
  "libc",
  "system-deps 1.3.2",
-]
-
-[[package]]
-name = "gobject-sys"
-version = "0.15.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6edb1f0b3e4c08e2a0a490d1082ba9e902cdff8ff07091e85c6caec60d17e2ab"
-dependencies = [
- "glib-sys 0.15.1",
- "libc",
- "system-deps 6.0.0",
 ]
 
 [[package]]
