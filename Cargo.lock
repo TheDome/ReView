@@ -14,7 +14,7 @@ dependencies = [
  "futures-util",
  "gdk 0.16.0",
  "gio 0.9.1",
- "glib 0.16.0",
+ "glib 0.16.2",
  "gtk",
  "httpmock",
  "json",
@@ -358,7 +358,7 @@ checksum = "bd6d010ad1f8103b579afac7713f061e3fc99d101f23928a432e2d42e9bdf249"
 dependencies = [
  "bitflags",
  "cairo-sys-rs 0.16.0",
- "glib 0.16.0",
+ "glib 0.16.2",
  "libc",
  "once_cell",
  "thiserror",
@@ -806,7 +806,7 @@ dependencies = [
  "gdk-pixbuf 0.16.0",
  "gdk-sys 0.16.0",
  "gio 0.16.0",
- "glib 0.16.0",
+ "glib 0.16.2",
  "libc",
  "pango 0.16.0",
 ]
@@ -835,7 +835,7 @@ dependencies = [
  "bitflags",
  "gdk-pixbuf-sys 0.16.0",
  "gio 0.16.0",
- "glib 0.16.0",
+ "glib 0.16.2",
  "libc",
 ]
 
@@ -953,7 +953,7 @@ dependencies = [
  "futures-io",
  "futures-util",
  "gio-sys 0.16.0",
- "glib 0.16.0",
+ "glib 0.16.2",
  "libc",
  "once_cell",
  "pin-project-lite",
@@ -1008,9 +1008,9 @@ dependencies = [
 
 [[package]]
 name = "glib"
-version = "0.16.0"
+version = "0.16.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9d9d01334b55e33e9189fa956dde9885e5439dfa6c448f4d724e222addbf06f2"
+checksum = "d5abffa711471e015eb93d65d6ea20e7e9f6f7951fc0a1042280439319b2de06"
 dependencies = [
  "bitflags",
  "futures-channel",
@@ -1736,7 +1736,7 @@ checksum = "7208c60f224cf6e44c551df5ee2ef38f9da0fd29d7c5a0402000b8ab0520e798"
 dependencies = [
  "bitflags",
  "gio 0.16.0",
- "glib 0.16.0",
+ "glib 0.16.2",
  "libc",
  "once_cell",
  "pango-sys 0.16.0",
