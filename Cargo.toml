@@ -20,7 +20,7 @@ session_from_config = []
 reqwest = { version = "0.11.12", features = ["default-tls", "json"] }
 env_logger = "0.9.3"
 json = "0.12.4"
-uuid = { version = "1.2.1", features = ["v4"] }
+uuid = { version = "1.2.2", features = ["v4"] }
 glib = "0.16.3"
 cairo-rs = { version = "^0", features = ["v1_16", "pdf"] }
 gdk = "0.16.0"
