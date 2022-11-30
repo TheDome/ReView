@@ -28,7 +28,7 @@ qt-json = "1.0.2"
 directories = "4.0.1"
 base64 = "0.13.1"
 futures-util = "0.3.25"
-async-trait = "0.1.58"
+async-trait = "0.1.59"
 
 [dependencies.tokio-tungstenite]
 version = "0.18.0"
