@@ -8,7 +8,7 @@ version = "0.0.0"
 dependencies = [
  "async-trait",
  "base64",
- "cairo-rs 0.16.3",
+ "cairo-rs 0.16.7",
  "directories",
  "env_logger",
  "futures-util",
@@ -352,9 +352,9 @@ dependencies = [
 
 [[package]]
 name = "cairo-rs"
-version = "0.16.3"
+version = "0.16.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "247e1183fa769ac22121f92276dae52f89acaf297f24b1320019f439b6e3b46f"
+checksum = "f3125b15ec28b84c238f6f476c6034016a5f6cc0221cb514ca46c532139fc97d"
 dependencies = [
  "bitflags",
  "cairo-sys-rs 0.16.0",
@@ -822,7 +822,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "aa9cb33da481c6c040404a11f8212d193889e9b435db2c14fd86987f630d3ce1"
 dependencies = [
  "bitflags",
- "cairo-rs 0.16.3",
+ "cairo-rs 0.16.7",
  "gdk-pixbuf 0.16.0",
  "gdk-sys 0.16.0",
  "gio 0.16.0",
