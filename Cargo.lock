@@ -12,7 +12,7 @@ dependencies = [
  "directories",
  "env_logger",
  "futures-util",
- "gdk 0.17.0",
+ "gdk 0.17.1",
  "gio 0.9.1",
  "glib 0.17.5",
  "gtk",
@@ -823,9 +823,9 @@ dependencies = [
 
 [[package]]
 name = "gdk"
-version = "0.17.0"
+version = "0.17.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "01aaa57fff872150a6eca1ee3d47df93151cbe8942c03f4964dcb2c4633af04c"
+checksum = "be1df5ea52cccd7e3a0897338b5564968274b52f5fd12601e0afa44f454c74d3"
 dependencies = [
  "bitflags",
  "cairo-rs 0.17.0",
