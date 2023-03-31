@@ -27,7 +27,7 @@ gdk = "0.17.1"
 qt-json = "1.0.2"
 directories = "5.0.0"
 base64 = "0.13.1"
-futures-util = "0.3.27"
+futures-util = "0.3.28"
 async-trait = "0.1.68"
 
 [dependencies.tokio-tungstenite]
