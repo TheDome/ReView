@@ -7,7 +7,7 @@ name = "ReView"
 version = "0.0.0"
 dependencies = [
  "async-trait",
- "base64 0.13.1",
+ "base64 0.21.0",
  "cairo-rs 0.17.0",
  "directories",
  "env_logger",
