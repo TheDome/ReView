@@ -31,7 +31,7 @@ futures-util = "0.3.28"
 async-trait = "0.1.68"
 
 [dependencies.tokio-tungstenite]
-version = "0.18.0"
+version = "0.19.0"
 features = ["native-tls"]
 
 [dependencies.tokio]
