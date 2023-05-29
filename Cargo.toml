@@ -35,7 +35,7 @@ version = "0.19.0"
 features = ["native-tls"]
 
 [dependencies.tokio]
-version = "1.28.1"
+version = "1.28.2"
 features = [ "rt-multi-thread", "macros"]
 
 [dependencies.gtk]
