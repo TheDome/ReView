@@ -14,7 +14,7 @@ dependencies = [
  "futures-util",
  "gdk 0.17.1",
  "gio 0.9.1",
- "glib 0.17.10",
+ "glib 0.18.0",
  "gtk",
  "httpmock",
  "json",
