@@ -23,7 +23,7 @@ json = "0.12.4"
 uuid = { version = "1.4.1", features = ["v4"] }
 glib = "0.17.10"
 cairo-rs = { version = "^0", features = ["v1_16", "pdf"] }
-gdk = "0.17.1"
+gdk = "0.18.0"
 qt-json = "1.0.2"
 directories = "5.0.1"
 base64 = "0.13.1"
