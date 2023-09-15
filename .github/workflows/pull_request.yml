@@ -96,7 +96,7 @@ jobs:
           use-tool-cache: true
       - uses: actions-rs/grcov@v0.1
         id: coverage
-      - uses: codecov/codecov-action@v3
+      - uses: codecov/codecov-action@v4
         with:
           files: ${{ steps.coverage.outputs.report }}
   build:
